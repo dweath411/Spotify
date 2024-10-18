@@ -27,7 +27,7 @@ def success():
     return "Playlist updated successfully"     
    
 if __name__ == '__main__':
-    app.run(debug=True) # run the Flask app in debug mode 
+    app.run(debug=False, port=5001) # run the Flask app in debug mode 
 
 
 '''

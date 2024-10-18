@@ -40,7 +40,7 @@ def run_spotify_logic(client_id, client_secret, large_playlist_id):
     Randomly picks 20 new songs and saves them to ensure no duplicates are chosen next time.
     If the playlist doesn't exist, it creates one and adds the new songs; if it exists, it clears and refills it weekly.
     '''
-    redirect_uri =  "http://localhost:5000/callback"  # set the redirect URI for Spotify OAuth
+    redirect_uri =  "http://localhost:5001/callback"  # set the redirect URI for Spotify OAuth
     sp =  spotipy.Spotify(auth_manager = SpotifyOAuth(
         client_id = client_id, # your Spotify client ID
         client_secret = client_secret, # your Spotify client secret
@@ -100,10 +100,10 @@ def run_spotify_logic(client_id, client_secret, large_playlist_id):
             print("Failed to create a new playlist. Exiting")
             exit(1) # exit the script if playlist creation fails
     # clear the playlist before adding new songs
-    clear_playlist(origin_radar_playlist_id)
+    clear_playlist(origin_radar_playlist_id, sp)
 
     # add new songs to the playlist
-    add_songs_to_playlist(origin_radar_playlist_id, new_songs) 
+    add_songs_to_playlist(origin_radar_playlist_id, new_songs, sp) 
 
     return "Playlist updated with new songs!"
 

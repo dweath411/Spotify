@@ -44,7 +44,6 @@ def create_new_playlist(name, description = "Throwback Radar 2.0"):
 
 
 '''
-chatgpt add on
 import logging
 
 # Configure logging to capture warnings and errors in a log file
