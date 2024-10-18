@@ -7,8 +7,9 @@ from spotipy.oauth2 import SpotifyOAuth
 import random
 import json
 import os
-from playlist import get_playlist_tracks, clear_playlist, create_origin_radar_playlist, add_songs_to_playlist
 # import functions from playlist.py
+from playlist import get_playlist_tracks, clear_playlist, create_origin_radar_playlist, add_songs_to_playlist
+
 '''
 Prerequisites to using this web application:
 1. Spotify Developer Account. Setup your Spotify Developer Account here: https://developer.spotify.com/dashboard/applications
@@ -26,10 +27,10 @@ The main idea in this script is to do 4 things.
 5. Save the selected songs to a file to ensure they aren't chosen again.
 '''
 
-# Authenticate with the Spotify API. You need to set up authentication using OAuth.
-# This involves creating a Spotify App on their developer dashboard.
-# You will receive your 'client_id', 'client_secret' and 'redirect_uri'. 
-# Documentation for these parameters are on Spotify's Developer website.
+# authenticate with the Spotify API. You need to set up authentication using OAuth.
+# this involves creating a Spotify App on their developer dashboard.
+# you will receive your 'client_id', 'client_secret' and 'redirect_uri'. 
+# documentation for these parameters are on Spotify's Developer website.
 def spotify_auth():
     return spotipy.Spotify(auth_manager = SpotifyOAuth(
         client_id = "YOUR_CLIENT_ID", # your Spotify client ID
