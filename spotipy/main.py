@@ -32,7 +32,7 @@ The main idea in this script is to do 4 things.
 
 
 # main function to run Spotify logic
-def run_spotify_logic(client_id, client_secret):
+def run_spotify_logic(client_id, client_secret, large_playlist_id):
     '''
     run_spotify_logic(): Core logic to interact with Spotify API, handles the playlist manipulation:
     Authenticates the user using credentials (client_id, client_secret).
@@ -47,11 +47,10 @@ def run_spotify_logic(client_id, client_secret):
         redirect_uri = redirect_uri, # redirect URI for OAuth callback
         scope="playlist-modify-public playlist-modify-private playlist-read-private"  # permissions to manage playlists
     ))
+    # input large_playlist_id from user input
+    large_playlist_tracks = get_playlist_tracks(large_playlist_id, sp)
     user_id = sp.current_user()['id'] # get the authenticated user's Spotify ID
-    # initialize your large playlist that the code will take songs from
-    large_playlist_id = 'EVERYTHING' # replace this with the name of YOUR playlist
-    large_playlist_tracks = get_playlist_tracks(large_playlist_id)
-
+   
     # randomly select 20 songs from this playlist, while also ensuring they haven't been selected before
     # load previously selected songs to avoid duplication
     try:

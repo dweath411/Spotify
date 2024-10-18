@@ -3,16 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Auth</title>
+    <title>Spotify Playlist Manager</title>
 </head>
 <body>
-    <h1>Enter Spotify Credentials</h1>
-    <form action="/spotify_auth" method="post">
+    <h1>Spotify Playlist Manager</h1>
+    <form method="POST" action="/submit">
         <label for="client_id">Client ID:</label>
         <input type="text" id="client_id" name="client_id" required><br><br>
+
         <label for="client_secret">Client Secret:</label>
         <input type="text" id="client_secret" name="client_secret" required><br><br>
-        <input type="submit" value="Authenticate">
+
+        <label for="large_playlist_id">Large Playlist ID:</label>
+        <input type="text" id="large_playlist_id" name="large_playlist_id" required><br><br>
+
+        <button type="submit">Submit</button>
     </form>
 </body>
 </html>
