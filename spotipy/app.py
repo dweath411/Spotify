@@ -11,12 +11,11 @@ def home():
 # route for handling Spotify authentication form submission
 @app.route('/submit', methods = ['POST']) 
 def submit():
-    client_id = request.form['client_id'] # client_id from form input
-    client_secret = request.form['client_secret'] # client_secret from form input
-    large_playlist_id = request.form['large_playlist_id'] # get users playlist of choice
-    # pass ID to spotify script
+    # get user's playlist choice from the form
+    large_playlist_id = request.form['large_playlist_id']
     try: 
-        run_spotify_logic(client_id, client_secret, large_playlist_id)
+        # run spotify logic using SpotAPI
+        run_spotify_logic(large_playlist_id)
         # redirect to run script with provided credentials
         return redirect(url_for('success'))
     except Exception as e:

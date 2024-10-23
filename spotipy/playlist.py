@@ -2,38 +2,25 @@ import spotipy
 from main import sp # import sp variable 
 
 # function to create origin playlist
-def create_origin_radar_playlist(user_id):
-    try:
-        playlist = sp.user_playlist_create(user_id, 'My Origin Radar', public=False, description='Weekly curated playlist from songs I have saved')
-        print(f"Playlist 'My Origin Radar' created with ID {playlist['id']}.")
-        return playlist['id']
-    except spotipy.SpotifyException as e:
-        print(f"Error creating playlist for user {user_id}: as {e}")
-        return None
-# function to get all tracks from a given playlist
-def get_playlist_tracks(playlist_id):
-    tracks = [] # list to store all the tracks from the playlist
-    results = sp.playlist_tracks(playlist_id) # get batch of tracks from the playlist
-    # sp is a variable defined in main.py
-    # continue this loop if there are multiple pages (Spotify paginates results)
-    while results:
-        tracks.extend(results['items']) # add the tracks to the list
-        results = sp.next(results) if results['next'] else None # get the batch if available
+def create_origin_radar_playlist(sp):
+    """Create a new custom playlist using SpotAPI."""
+    playlist = sp.create_playlist('My Origin Radar', public=False, description='Weekly curated playlist from songs I have saved')
+    print(f"Playlist 'My Origin Radar' created with ID {playlist['id']}.")
+    return playlist['id']
 
-    return tracks # return the complete list of tracks
+# function to get all tracks from a given playlist
+def get_playlist_tracks(sp, playlist_id):
+    """Retrieve tracks from a specified playlist using SpotAPI."""
+    return sp.playlist_tracks(playlist_id)['items']
 
 # function to clear playlist of all songs by replacing its contents with an empty list
-def clear_playlist(playlist_id):
-    try:
-        sp.playlist_replace_items(playlist_id, []) # clear playlist
-        print(f"Playlist {playlist_id} cleared successfully")
-    except spotipy.SpotifyException as e:
-        print(f"Error clearing playlist {playlist_id}: {e}")
+def clear_playlist(sp, playlist_id):
+    """Create an existing playlist of all its songs."""
+    sp.clear_playlist(playlist_id) # clear playlist
+    print(f"Playlist {playlist_id} cleared successfully")
 
 # function to add new songs to a given playlist
-def add_songs_to_playlist(playlist_id, song_uris):
-    try: 
-        sp.playlist_add_items(playlist_id, song_uris) # add the list of song URIs to specified playlist
-        print(f"Added {len(song_uris)} songs to playlist {playlist_id}.")
-    except spotipy.SpotifyException as e:
-        print(f"Error adding songs to playlist {playlist_id}: {e}")
+def add_songs_to_playlist(playlist_id, songs):
+    """Add a list of songs to a playlist"""
+    sp.add_playlist_tracks(playlist_id, songs) # add the list of songs to specified playlist
+    print(f"Added {len(songs)} songs to playlist {playlist_id}.")
