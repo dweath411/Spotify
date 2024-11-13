@@ -1,32 +1,33 @@
 from flask import Flask, request, render_template, redirect, url_for
-from main import run_spotify_logic # import spotify logic function
+from main import run_spotify_logic  # import the main logic function
 
-app = Flask(__name__) # initialize Flask app
+app = Flask(__name__)  # initialize Flask application
 
-# route the home page
+# route for home page displaying the input form
 @app.route('/')
 def home():
-    return render_template('index.html') # render HTML template to get credentials
+    return render_template('index.html')  # render the HTML form page
 
-# route for handling Spotify authentication form submission
-@app.route('/submit', methods = ['POST']) 
+# route to handle the form submission
+@app.route('/submit', methods=['POST'])
 def submit():
-    # get user's playlist choice from the form
+    # retrieve the large playlist ID from user input
     large_playlist_id = request.form['large_playlist_id']
-    try: 
-        # run spotify logic using SpotAPI
-        run_spotify_logic(large_playlist_id)
-        # redirect to run script with provided credentials
-        return redirect(url_for('success'))
-    except Exception as e:
-        return f"Error during authentication: {e}" # return error message
 
-@app.route('/success') # route to show sucess after playlist is updated
+    try:
+        # run the main Spotify logic
+        run_spotify_logic(large_playlist_id)
+        return redirect(url_for('success'))  # redirect to success page
+    except Exception as e:
+        return f"Error: {e}"  # display error if something goes wrong
+
+# success page route
+@app.route('/success')
 def success():
-    return "Playlist updated successfully"     
-   
+    return "Playlist updated successfully!"  # success message for the user
+
 if __name__ == '__main__':
-    app.run(debug=True) # run the Flask app in debug mode 
+    app.run(debug=True)  # start the Flask application in debug mode
 
 
 '''

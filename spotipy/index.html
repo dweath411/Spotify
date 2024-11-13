@@ -4,20 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Playlist Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1DB954, #191414);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            color: white;
+            animation: fadeIn 1s ease-in-out;
+        }
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        label {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        input {
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            border-color: #1DB954;
+            box-shadow: 0 0 5px rgba(29, 185, 84, 0.5);
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #17a74c;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .success-message {
+            display: none;
+            margin-top: 20px;
+            color: #28a745;
+            font-size: 18px;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+    </style>
 </head>
 <body>
     <h1>Spotify Playlist Manager</h1>
-    <form method="POST" action="/submit">
-        <label for="client_id">Client ID:</label>
-        <input type="text" id="client_id" name="client_id" required><br><br>
-
-        <label for="client_secret">Client Secret:</label>
-        <input type="text" id="client_secret" name="client_secret" required><br><br>
-
-        <label for="large_playlist_id">Large Playlist ID:</label>
-        <input type="text" id="large_playlist_id" name="large_playlist_id" required><br><br>
+    <form id="spotifyForm" method="POST" action="/submit">
+        <label for="large_playlist_id">Enter Large Playlist ID:</label>
+        <input type="text" id="large_playlist_id" name="large_playlist_id" required>
 
         <button type="submit">Submit</button>
     </form>
+    <div class="success-message" id="successMessage">Playlist successfully submitted!</div>
+
+    <script>
+        const form = document.getElementById('spotifyForm');
+        const successMessage = document.getElementById('successMessage');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Simulate success (in actual project, trigger this upon real success)
+            successMessage.style.display = 'block';
+            form.reset();  // Reset the form fields
+        });
+    </script>
 </body>
 </html>
+
+
