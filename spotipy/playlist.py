@@ -1,4 +1,3 @@
-import spotipy
 from main import sp # import sp variable 
 
 # function to create origin playlist

@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, url_for
 from main import run_spotify_logic # import spotify logic function
-
-app = Flask(__name__) # initialize Flask app
+# flask app run
+app = Flask(__name__)
 
 # route the home page
 @app.route('/')

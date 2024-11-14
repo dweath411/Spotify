@@ -1,4 +1,3 @@
-# pip install spotapi
 import spotapi # secondary spotify tool that doesn't require spotify api tokens
 import random
 import json
