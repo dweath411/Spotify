@@ -1,25 +1,51 @@
-from main import sp # import sp variable 
-
-# function to create origin playlist
-def create_origin_radar_playlist(sp):
-    """Create a new custom playlist using SpotAPI."""
-    playlist = sp.create_playlist('My Origin Radar', public=False, description='Weekly curated playlist from songs I have saved')
-    print(f"Playlist 'My Origin Radar' created with ID {playlist['id']}.")
-    return playlist['id']
-
-# function to get all tracks from a given playlist
+# function to retrieve all tracks from a specified playlist
 def get_playlist_tracks(sp, playlist_id):
-    """Retrieve tracks from a specified playlist using SpotAPI."""
-    return sp.playlist_tracks(playlist_id)['items']
+    """
+    retrieves tracks from a given playlist.
 
-# function to clear playlist of all songs by replacing its contents with an empty list
+    args:
+        sp (spotapi.client): instance of the spotapi client.
+        playlist_id (str): id of the playlist to retrieve tracks from.
+        
+    returns:
+        list: a list of track items from the playlist.
+    """
+    return sp.playlist_tracks(playlist_id)['items']  # fetch playlist tracks
+
+# function to create a new custom playlist called "origin radar"
+def create_origin_radar_playlist(sp, user_id):
+    """
+    creates a new custom playlist.
+
+    args:
+        sp (spotapi.client): instance of the spotapi client.
+        user_id (str): the spotify user id.
+        
+    returns:
+        str: id of the newly created playlist.
+    """
+    playlist = sp.create_playlist("origin radar 2.0", user_id, description="weekly updated playlist of forgotten songs")
+    return playlist['id']  # return the new playlist id
+
+# function to clear a playlist by removing all its tracks
 def clear_playlist(sp, playlist_id):
-    """Create an existing playlist of all its songs."""
-    sp.clear_playlist(playlist_id) # clear playlist
-    print(f"Playlist {playlist_id} cleared successfully")
+    """
+    clears all songs from the given playlist.
 
-# function to add new songs to a given playlist
-def add_songs_to_playlist(playlist_id, songs):
-    """Add a list of songs to a playlist"""
-    sp.add_playlist_tracks(playlist_id, songs) # add the list of songs to specified playlist
-    print(f"Added {len(songs)} songs to playlist {playlist_id}.")
+    args:
+        sp (spotapi.client): instance of the spotapi client.
+        playlist_id (str): id of the playlist to clear.
+    """
+    sp.clear_playlist(playlist_id)  # remove all tracks from the playlist
+
+# function to add a list of songs to a playlist
+def add_songs_to_playlist(sp, playlist_id, songs):
+    """
+    adds specified songs to a playlist.
+
+    args:
+        sp (spotapi.client): instance of the spotapi client.
+        playlist_id (str): id of the playlist to add songs to.
+        songs (list): a list of track uris to add.
+    """
+    sp.add_playlist_tracks(playlist_id, songs)  # add songs to the playlist
