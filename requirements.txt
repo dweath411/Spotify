@@ -1,3 +1,4 @@
 apscheduler
 spotapi
 flask
+gunicorn
