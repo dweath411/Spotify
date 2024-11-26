@@ -1,4 +1,0 @@
-apscheduler
-spotapi
-flask
-gunicorn
