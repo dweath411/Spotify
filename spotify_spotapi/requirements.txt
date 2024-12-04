@@ -25,3 +25,4 @@ typing-extensions==4.12.2
 tzlocal==5.2
 urllib3==2.2.3
 validators==0.34.0
+websockets==12.0
