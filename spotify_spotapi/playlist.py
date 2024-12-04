@@ -1,3 +1,11 @@
+from spotapi.http import StdClient
+from spotapi.client import BaseClient
+
+# Initialize SpotAPI client
+http_client = StdClient()
+sp = BaseClient(client=http_client)
+
+
 # function to retrieve all tracks from a specified playlist
 def get_playlist_tracks(sp, playlist_id):
     """

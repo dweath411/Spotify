@@ -8,14 +8,23 @@ The main idea in this script is to do 4 things.
 '''
 
 # import spotapi
+from spotapi.http import StdClient
+from spotapi.client import BaseClient
+from playlist import (
+    get_playlist_tracks,
+    clear_playlist,
+    add_songs_to_playlist,
+    create_origin_radar_playlist,
+)
 import json
 import random
 import os
-from spotapi.client import BaseClient  # importing BaseClient
-from playlist import get_playlist_tracks, clear_playlist, add_songs_to_playlist, create_origin_radar_playlist
 
-# initialize the SpotAPI client
-sp = BaseClient()  # no api key required
+
+# initialize SpotAPI client
+http_client = StdClient()  # standard HTTP client
+sp = BaseClient(client=http_client)  # SpotAPI base client
+
 
 # function to create or update the playlist
 def create_or_update_playlist(user_id, large_playlist_id):
@@ -26,13 +35,14 @@ def create_or_update_playlist(user_id, large_playlist_id):
         user_id (str): spotify user id for personalized json storage.
         large_playlist_id (str): id of the large playlist to draw from.
     """
-    # load user-specific json file to track previously selected songs
+    # user-specific json file to track previously selected songs
     user_file = f"{user_id}_selected_songs.json"
     try:
+        # load previously selected songs
         with open(user_file, 'r') as f:
             selected_songs = json.load(f)
     except FileNotFoundError:
-        selected_songs = []  # start with an empty list if no file exists
+        selected_songs = []  # start with an empty list if the file doesn't exist
 
     # fetch tracks from the large playlist
     large_playlist_tracks = get_playlist_tracks(sp, large_playlist_id)
@@ -57,6 +67,9 @@ def create_or_update_playlist(user_id, large_playlist_id):
             origin_radar_playlist_id = f.read().strip()
     else:
         origin_radar_playlist_id = create_origin_radar_playlist(sp, user_id)
+        if not origin_radar_playlist_id:
+            print("error: could not create origin radar playlist.")
+            return  # exit if playlist creation fails
         with open(playlist_id_file, 'w') as f:
             f.write(origin_radar_playlist_id)
     
@@ -65,5 +78,3 @@ def create_or_update_playlist(user_id, large_playlist_id):
     add_songs_to_playlist(sp, origin_radar_playlist_id, new_songs)
 
     print("playlist updated successfully!")
-
-
