@@ -16,7 +16,7 @@ from playlist import get_playlist_tracks, clear_playlist, add_songs_to_playlist,
 # import functions from playlist.py
 
 # initialize the SpotAPI client
-sp = spotapi.Client()
+sp = spotapi.client()
 
 # function to create or update the playlist
 def create_or_update_playlist(user_id, large_playlist_id):
