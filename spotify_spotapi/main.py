@@ -7,16 +7,15 @@ The main idea in this script is to do 4 things.
 4. Save the selected songs to a file to ensure they aren't chosen again.
 '''
 
-
-import spotapi
+# import spotapi
 import json
 import random
 import os
+from spotapi.client import BaseClient  # importing BaseClient
 from playlist import get_playlist_tracks, clear_playlist, add_songs_to_playlist, create_origin_radar_playlist
-# import functions from playlist.py
 
 # initialize the SpotAPI client
-sp = spotapi.client()
+sp = BaseClient()  # no api key required
 
 # function to create or update the playlist
 def create_or_update_playlist(user_id, large_playlist_id):
