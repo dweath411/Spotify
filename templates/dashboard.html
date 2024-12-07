@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Spotify Origin Radar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Welcome to Your Dashboard</h1>
+            <p>Select a playlist to use as your source for weekly curation.</p>
+        </header>
+        <main>
+            <form action="{{ url_for('create') }}" method="POST">
+                <label for="playlist_id">Choose a playlist:</label>
+                <select id="playlist_id" name="playlist_id" required>
+                    {% for playlist in playlists %}
+                        <option value="{{ playlist['id'] }}">{{ playlist['name'] }}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="options">
+                    <input type="checkbox" id="overwrite" name="overwrite" checked>
+                    <label for="overwrite">Overwrite existing playlist</label>
+                </div>
+
+                <button type="submit" class="submit-button">Create Playlist</button>
+            </form>
+        </main>
+        <footer>
+            <p>&copy; 2024 Spotify Origin Radar</p>
+        </footer>
+    </div>
+</body>
+</html>

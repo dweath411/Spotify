@@ -1,1 +1,18 @@
-user_session.json
+# Exclude environment variables
+.env
+
+# Byte-compiled files
+__pycache__/
+*.pyc
+
+# Flask and other temporary files
+instance/
+*.log
+*.sqlite3
+
+# Deployment-specific
+.DS_Store
+*.pid
+*.env
+*.idea/
+*.vscode/
