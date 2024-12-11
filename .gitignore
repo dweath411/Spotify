@@ -1,16 +1,16 @@
-# Exclude environment variables
+# exclude environment variables
 .env
 
-# Byte-compiled files
+# byte-compiled files
 __pycache__/
 *.pyc
 
-# Flask and other temporary files
+# flask and other temporary files
 instance/
 *.log
 *.sqlite3
 
-# Deployment-specific
+# deployment-specific
 .DS_Store
 *.pid
 *.env

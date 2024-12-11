@@ -8,10 +8,16 @@ import os
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+from dotenv import load_dotenv
+
+# load environment variables from the .env file
+# load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
+load_dotenv()
+
 # Spotify API credentials from environment variables
 CLIENT_ID = os.getenv("CLIENT_ID") # insert your client_id here if developer
 CLIENT_SECRET = os.getenv("CLIENT_SECRET") # insert your client_secret here if developer
-REDIRECT_URI = "http://localhost:5001/callback" # insert your own redirecturi from Spotify
+REDIRECT_URI = os.getenv("REDIRECT_URI") # insert your own redirecturi from Spotify
 SCOPE = "playlist-modify-public playlist-modify-private playlist-read-private"
 
 # initialize database
@@ -63,4 +69,4 @@ def create():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5001)))
