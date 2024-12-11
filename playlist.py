@@ -9,11 +9,19 @@ def get_user_playlists(sp):
         sp (spotipy.Spotify): the spotify client.
 
     returns:
-        list: a list of user's playlists.
+        list: a list of user's playlists, or an empty list if none are found.
     """
-    playlists = sp.current_user_playlists()
-    return [{"id": p["id"], "name": p["name"]} for p in playlists["items"]]
-
+    try:
+        playlists = sp.current_user_playlists()
+        print(playlists)  # Debugging: print API response
+        if playlists and "items" in playlists:
+            return [{"id": p["id"], "name": p["name"]} for p in playlists["items"]]
+        else:
+            print("No playlists found or API response was invalid.")
+            return []
+    except Exception as e:
+        print(f"Error fetching playlists: {e}")
+        return []
 
 def create_or_update_playlist(sp, user_id, large_playlist_id, selected_songs, overwrite=True):
     """
