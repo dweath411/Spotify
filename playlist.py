@@ -32,6 +32,37 @@ def get_user_playlists(sp):
         print(f"Error fetching playlists: {e}")
         return []
 
+def remove_duplicates(sp, playlist_id):
+    """
+    removes duplicate tracks from a playlist by comparing track uris.
+
+    args:
+        sp (spotipy.Spotify): the spotipy client instance.
+        playlist_id (str): id of the playlist to clean up.
+
+    returns:
+        None
+    """
+    # get all tracks from the playlist
+    tracks = sp.playlist_items(playlist_id)["items"]
+    track_uris = []
+    duplicate_tracks = []
+
+    # loop through tracks and find duplicates
+    for track in tracks:
+        track_uri = track['track']['uri']
+        if track_uri in track_uris:
+            duplicate_tracks.append(track['track']['id'])  # add duplicate track ids
+        else:
+            track_uris.append(track_uri)
+
+    if duplicate_tracks:
+        # remove the duplicate tracks from the playlist
+        sp.playlist_remove_all_occurrences_of_items(playlist_id, duplicate_tracks)
+        print(f"Removed {len(duplicate_tracks)} duplicate(s) from the playlist.")
+    else:
+        print("No duplicates found in the playlist.")
+
 def create_or_update_playlist(sp, user_id, large_playlist_id, selected_songs, overwrite=True):
     """
     create or update the 'origin radar' playlist.

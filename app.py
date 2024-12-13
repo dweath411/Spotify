@@ -2,7 +2,7 @@ from flask import Flask, request, redirect, render_template, url_for, session, s
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 from playlist import create_or_update_playlist, get_user_playlists, remove_duplicates
-from database import initialize_db, add_selected_songs, get_selected_songs, save_playlist_history, add_to_playlist_history, get_playlist_history
+from database import initialize_db, add_selected_songs, get_selected_songs, add_to_playlist_history, get_playlist_history
 from export import export_playlist_to_csv
 from genres import group_tracks_by_genre, create_genre_playlists
 from history import initialize_history_db, save_playlist_history, get_user_history
@@ -83,21 +83,13 @@ def export():
     sp = Spotify(auth=token_info["access_token"])
     playlist_id = request.form["playlist_id"]
 
+    # Verify that playlist_id is valid and not empty
+    if not playlist_id:
+        return "Invalid playlist ID."
+
     export_playlist_to_csv(sp, playlist_id)
     return "Playlist exported successfully!"
 
-@app.route("/history")
-def history():
-    """Display the user's playlist history."""
-    token_info = session.get("token_info")
-    if not token_info:
-        return redirect("/")
-
-    sp = Spotify(auth=token_info["access_token"])
-    user_id = sp.me()["id"]
-    history_data = get_user_history(user_id)
-
-    return render_template("history.html", history=history_data)
 
 @app.route('/recover_playlist', methods=["GET"])
 def recover_playlist():
@@ -125,16 +117,20 @@ def recover_playlist():
 
 @app.route("/remove_duplicates", methods=["POST"])
 def remove_duplicates_route():
-    """Remove duplicate tracks from a selected playlist."""
+    """Remove duplicate tracks from a playlist."""
     token_info = session.get("token_info")
     if not token_info:
-        return redirect("/")
+        return redirect("/")  # redirect to home if no session token
 
-    sp = Spotify(auth=token_info["access_token"])
-    playlist_id = request.form["playlist_id"]
+    sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
+    user_id = sp.me()["id"]
+    playlist_id = request.form["playlist_id"]  # get selected playlist ID from form
 
+    # call the remove_duplicates function
     remove_duplicates(sp, playlist_id)
-    return "Duplicates removed successfully!"
+
+    return "Duplicate tracks removed from the playlist!"
+
 
 # Route to export playlist data as CSV
 @app.route('/export', methods=["GET"])
@@ -182,7 +178,6 @@ def history():
     playlists = get_playlist_history(user_id)  # retrieve user's playlist history
 
     return render_template("history.html", playlists=playlists)
-
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5001)))
