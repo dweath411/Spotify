@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist History - Spotify Origin Radar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Your Playlist History</h1>
+        </header>
+        <main>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Playlist Name</th>
+                        <th>Playlist ID</th>
+                        <th>Timestamp</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for playlist in playlists %}
+                        <tr>
+                            <td>{{ playlist[0] }}</td>
+                            <td>{{ playlist[1] }}</td>
+                            <td>{{ playlist[3] }}</td>
+                            <td><a href="{{ url_for('recover_playlist', playlist_id=playlist[1]) }}">Recover Playlist</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </main>
+        <footer>
+            <p>&copy; 2024 Spotify Origin Radar</p>
+        </footer>
+    </div>
+</body>
+</html>

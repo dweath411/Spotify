@@ -13,6 +13,7 @@
             <p>Select a playlist to use as your source for weekly curation.</p>
         </header>
         <main>
+            <!-- Form to choose a playlist and overwrite option -->
             <form action="{{ url_for('create') }}" method="POST">
                 <label for="playlist_id">Choose a playlist:</label>
                 <select id="playlist_id" name="playlist_id" required>
@@ -28,6 +29,13 @@
 
                 <button type="submit" class="submit-button">Create Playlist</button>
             </form>
+
+            <!-- Buttons for additional features -->
+            <div class="features">
+                <a href="{{ url_for('history') }}" class="feature-button">View Playlist History</a>
+                <a href="{{ url_for('export') }}" class="feature-button">Export Playlist Data</a>
+                <a href="{{ url_for('remove_duplicates_route') }}" class="feature-button">Remove Duplicates</a>
+            </div>
         </main>
         <footer>
             <p>&copy; 2024 Spotify Origin Radar</p>

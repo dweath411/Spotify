@@ -3,18 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DW's Spotify Origin Radar</title>
+    <title>Spotify Origin Radar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <header>
             <img src="{{ url_for('static', filename='spotify-logo.png') }}" alt="Spotify Logo" class="logo">
-            <h1>DW's Spotify Origin Radar</h1>
+            <h1>Spotify Origin Radar</h1>
         </header>
         <main>
-            <p>Revisit and relive your favorite tracks weekly with a custom playlist.</p>
+            <p>Discover and relive your favorite tracks weekly with a custom playlist.</p>
             <a href="{{ auth_url }}" class="login-button">Log in with Spotify</a>
+
+            <!-- Buttons for New Features -->
+            <div class="features">
+                <a href="{{ url_for('history') }}" class="feature-button">View Playlist History</a>
+                <a href="{{ url_for('export') }}" class="feature-button">Export Playlist Data</a>
+                <a href="{{ url_for('remove_duplicates_route') }}" class="feature-button">Remove Duplicates</a>
+            </div>
         </main>
         <footer>
             <p>&copy; 2024 Spotify Origin Radar</p>
@@ -22,6 +29,7 @@
     </div>
 </body>
 </html>
+
 
 
 <!--HTML for webpage--> 
