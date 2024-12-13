@@ -1,9 +1,9 @@
 import random
-import datetime
+from datetime import datetime
 
 def get_user_playlists(sp):
     """
-    fetch all playlists for the authenticated user.
+    fetch all playlists for the authenticated user, handling pagination and errors.
 
     args:
         sp (spotipy.Spotify): the spotify client.
@@ -12,13 +12,22 @@ def get_user_playlists(sp):
         list: a list of user's playlists, or an empty list if none are found.
     """
     try:
-        playlists = sp.current_user_playlists()
-        print(playlists)  # Debugging: print API response
-        if playlists and "items" in playlists:
-            return [{"id": p["id"], "name": p["name"]} for p in playlists["items"]]
+        playlists = []
+        results = sp.current_user_playlists()  # fetch first batch of playlists
+        print(results)  # debugging: print API response
+
+        if results and "items" in results:
+            playlists.extend(results["items"])
         else:
             print("No playlists found or API response was invalid.")
             return []
+
+        # handle pagination to fetch remaining playlists
+        while results["next"]:
+            results = sp.next(results)  # get the next page
+            playlists.extend(results["items"])
+
+        return [{"id": p["id"], "name": p["name"]} for p in playlists]
     except Exception as e:
         print(f"Error fetching playlists: {e}")
         return []

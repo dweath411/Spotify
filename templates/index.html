@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Origin Radar</title>
+    <title>DW's Spotify Origin Radar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <header>
             <img src="{{ url_for('static', filename='spotify-logo.png') }}" alt="Spotify Logo" class="logo">
-            <h1>Spotify Origin Radar</h1>
+            <h1>DW's Spotify Origin Radar</h1>
         </header>
         <main>
-            <p>Discover and relive your favorite tracks weekly with a custom playlist.</p>
+            <p>Revisit and relive your favorite tracks weekly with a custom playlist.</p>
             <a href="{{ auth_url }}" class="login-button">Log in with Spotify</a>
         </main>
         <footer>
