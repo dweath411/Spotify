@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect, render_template, url_for, session
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
-from playlist import create_or_update_playlist, get_user_playlists
+from spotipy_app.playlist import create_or_update_playlist, get_user_playlists
 from database import initialize_db, add_selected_songs, get_selected_songs
 import os
 
