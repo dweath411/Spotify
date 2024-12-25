@@ -1,6 +1,6 @@
 # exclude environment variables
 .env
-
+.cache
 # byte-compiled files
 __pycache__/
 *.pyc
