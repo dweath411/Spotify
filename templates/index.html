@@ -13,15 +13,8 @@
             <h1>Spotify Origin Radar</h1>
         </header>
         <main>
-            <p>Discover and relive your favorite tracks weekly with a custom playlist.</p>
+            <p>Discover and relive your favorite tracks weekly with custom playlists.</p>
             <a href="{{ auth_url }}" class="login-button">Log in with Spotify</a>
-
-            <!-- Buttons for New Features -->
-            <div class="features">
-                <a href="{{ url_for('history') }}" class="feature-button">View Playlist History</a>
-                <a href="{{ url_for('export') }}" class="feature-button">Export Playlist Data</a>
-                <a href="{{ url_for('remove_duplicates_route') }}" class="feature-button">Remove Duplicates</a>
-            </div>
         </main>
         <footer>
             <p>&copy; 2024 Spotify Origin Radar</p>

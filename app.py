@@ -73,22 +73,46 @@ def create():
 
     return "Playlist updated successfully!"
 
-@app.route("/export", methods=["POST"])
-def export():
-    """Export playlist data to CSV."""
+# @app.route("/export", methods=["POST"])
+# def export():
+#     """Export playlist data to CSV."""
+#     token_info = session.get("token_info")
+#     if not token_info:
+#         return redirect("/")
+
+#     sp = Spotify(auth=token_info["access_token"])
+#     playlist_id = request.form["playlist_id"]
+
+#     # Verify that playlist_id is valid and not empty
+#     if not playlist_id:
+#         return "Invalid playlist ID."
+
+#     export_playlist_to_csv(sp, playlist_id)
+#     return "Playlist exported successfully!"
+
+@app.route('/export', methods=['GET', 'POST'])
+def export_playlist():
     token_info = session.get("token_info")
     if not token_info:
-        return redirect("/")
+        return redirect("/")  # redirect to home if no session token
 
-    sp = Spotify(auth=token_info["access_token"])
-    playlist_id = request.form["playlist_id"]
+    sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
+    if request.method == 'GET':
+        return render_template('export.html')
 
-    # Verify that playlist_id is valid and not empty
-    if not playlist_id:
-        return "Invalid playlist ID."
+    elif request.method == 'POST':
+        playlist_id = request.form.get('playlist_id')
+        csv_file = f"playlist_{playlist_id}.csv"
+        
+        # Call the export function
+        message = export_playlist_to_csv(sp, playlist_id, file_name=csv_file)
 
-    export_playlist_to_csv(sp, playlist_id)
-    return "Playlist exported successfully!"
+        if "successfully" in message:
+            # Return the CSV file for download
+            return send_file(csv_file, as_attachment=True)
+        else:
+            # Display the error message in the template
+            return render_template('export.html', error=message)
 
 
 @app.route('/recover_playlist', methods=["GET"])
