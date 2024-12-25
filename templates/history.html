@@ -27,7 +27,7 @@
                             <td>{{ playlist[0] }}</td>
                             <td>{{ playlist[1] }}</td>
                             <td>{{ playlist[3] }}</td>
-                            <td><a href="{{ url_for('recover_playlist', playlist_id=playlist[1]) }}">Recover Playlist</a></td>
+                            <td><a href="{{ url_for('recover_playlist', playlist_id=playlist[1]) }}" class="spotify-button">Recover Playlist</a></td>
                         </tr>
                     {% endfor %}
                 </tbody>

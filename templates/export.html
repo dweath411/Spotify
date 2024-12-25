@@ -13,14 +13,20 @@
         </header>
         <main>
             <form action="{{ url_for('export_playlist') }}" method="POST">
-                <label for="playlist_id">Enter Playlist ID:</label>
-                <input type="text" id="playlist_id" name="playlist_id" required>
-                <button type="submit">Export Playlist</button>
+                <label for="playlist_id">Select Playlist:</label>
+                <select id="playlist_id" name="playlist_id" required>
+                    {% for playlist in playlists %}
+                        <option value="{{ playlist['id'] }}">{{ playlist['name'] }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="spotify-button">Export Playlist</button>
             </form>
             <div class="info">
-                <p>Enter the Spotify Playlist ID to download its details in CSV format.</p>
-                <p>Don't know how to find the Playlist ID? Right-click on the playlist in Spotify, select "Share," then "Copy Link." The ID is the string after `/playlist/` in the URL.</p>
+                <p>Select a playlist to download its details in CSV format.</p>
             </div>
+            {% if error %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
         </main>
         <footer>
             <p>&copy; 2024 Spotify Origin Radar</p>

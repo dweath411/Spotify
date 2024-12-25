@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, url_for, session, send_file
+from flask import Flask, request, redirect, render_template, url_for, session, send_file, Response
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 from playlist import create_or_update_playlist, get_user_playlists, remove_duplicates
@@ -8,6 +8,7 @@ from genres import group_tracks_by_genre, create_genre_playlists
 from history import initialize_history_db, save_playlist_history, get_user_history
 import os
 import csv
+import re
 from io import StringIO
 
 app = Flask(__name__)
@@ -53,6 +54,26 @@ def callback():
     return render_template("dashboard.html", playlists=playlists)  # show playlist dropdown
 
 
+# @app.route("/create", methods=["POST"])
+# def create():
+#     """Handle playlist creation or update based on user input."""
+#     token_info = session.get("token_info")
+#     if not token_info:
+#         return redirect("/")  # redirect to home if no session token
+
+#     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
+#     playlist_id = request.form["playlist_id"]  # get selected playlist ID from form
+#     overwrite = request.form.get("overwrite") == "on"  # check if overwrite is selected
+
+#     # get user's Spotify ID and previously selected songs
+#     user_id = sp.me()["id"]
+#     selected_songs = get_selected_songs(user_id)
+
+#     # create or update the playlist
+#     create_or_update_playlist(sp, user_id, playlist_id, selected_songs, overwrite)
+
+#     return "Playlist updated successfully!"
+
 @app.route("/create", methods=["POST"])
 def create():
     """Handle playlist creation or update based on user input."""
@@ -69,75 +90,82 @@ def create():
     selected_songs = get_selected_songs(user_id)
 
     # create or update the playlist
-    create_or_update_playlist(sp, user_id, playlist_id, selected_songs, overwrite)
+    new_playlist = create_or_update_playlist(sp, user_id, playlist_id, selected_songs, overwrite)
+
+    # save the new playlist details to the history database
+    if new_playlist:
+        save_playlist_history(user_id, new_playlist['name'], new_playlist['id'])
 
     return "Playlist updated successfully!"
 
-# @app.route("/export", methods=["POST"])
-# def export():
-#     """Export playlist data to CSV."""
-#     token_info = session.get("token_info")
-#     if not token_info:
-#         return redirect("/")
-
-#     sp = Spotify(auth=token_info["access_token"])
-#     playlist_id = request.form["playlist_id"]
-
-#     # Verify that playlist_id is valid and not empty
-#     if not playlist_id:
-#         return "Invalid playlist ID."
-
-#     export_playlist_to_csv(sp, playlist_id)
-#     return "Playlist exported successfully!"
 
 @app.route('/export', methods=['GET', 'POST'])
 def export_playlist():
     token_info = session.get("token_info")
     if not token_info:
-        return redirect("/")  # redirect to home if no session token
+        return redirect("/")  # Redirect to home if no session token
 
-    sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
+    sp = Spotify(auth=token_info["access_token"])  # Reinitialize Spotify client
+
     if request.method == 'GET':
-        return render_template('export.html')
+        # Fetch user's playlists for dropdown menu
+        playlists = sp.current_user_playlists()["items"]
+        return render_template('export.html', playlists=playlists)
 
     elif request.method == 'POST':
-        playlist_id = request.form.get('playlist_id')
-        csv_file = f"playlist_{playlist_id}.csv"
-        
-        # Call the export function
-        message = export_playlist_to_csv(sp, playlist_id, file_name=csv_file)
+        raw_input = request.form.get('playlist_id')
 
-        if "successfully" in message:
-            # Return the CSV file for download
-            return send_file(csv_file, as_attachment=True)
+        # Extract playlist ID if input is a URI or URL
+        playlist_id = None
+        if re.match(r"spotify:playlist:[a-zA-Z0-9]+", raw_input):
+            playlist_id = raw_input.split(":")[-1]  # Extract ID from URI
+        elif re.match(r"https://open\.spotify\.com/playlist/[a-zA-Z0-9]+", raw_input):
+            playlist_id = raw_input.split("/")[-1].split("?")[0]  # Extract ID from URL
         else:
-            # Display the error message in the template
-            return render_template('export.html', error=message)
+            playlist_id = raw_input  # Assume it's a raw playlist ID
+
+        # Validate playlist ID
+        if not playlist_id:
+            return render_template('export.html', error="Invalid Playlist ID or URI.")
+
+        try:
+            # Call the export function
+            csv_file = f"playlist_{playlist_id}.csv"
+            message = export_playlist_to_csv(sp, playlist_id, file_name=csv_file)
+
+            if "successfully" in message:
+                return send_file(csv_file, as_attachment=True)
+            else:
+                return render_template('export.html', error=message)
+        except Exception as e:
+            return render_template('export.html', error=f"An error occurred: {e}")
 
 
-@app.route('/recover_playlist', methods=["GET"])
-def recover_playlist():
-    """Recover a previous playlist based on the playlist ID."""
-    playlist_id = request.args.get("playlist_id")
-    token_info = session.get("token_info")
-    if not token_info:
-        return redirect("/")  # redirect to home if no session token
 
-    sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
-    user_id = sp.me()["id"]
 
-    # fetch previous playlist songs from the database
-    playlist_data = get_playlist_history(user_id)
-    previous_playlist = next((p for p in playlist_data if p[1] == playlist_id), None)
+# @app.route('/recover_playlist', methods=["GET"])
+# def recover_playlist():
+#     """Recover a previous playlist based on the playlist ID."""
+#     playlist_id = request.args.get("playlist_id")
+#     token_info = session.get("token_info")
+#     if not token_info:
+#         return redirect("/")  # redirect to home if no session token
+
+#     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
+#     user_id = sp.me()["id"]
+
+#     # fetch previous playlist songs from the database
+#     playlist_data = get_playlist_history(user_id)
+#     previous_playlist = next((p for p in playlist_data if p[1] == playlist_id), None)
     
-    if previous_playlist:
-        song_uris = previous_playlist[3].split(",")
-        # Add these songs back to the selected playlist
-        sp.playlist_add_items(playlist_id, song_uris)
-        return "Playlist recovered successfully!"
-    else:
-        return "Playlist not found!"
-
+#     if previous_playlist:
+#         song_uris = previous_playlist[3].split(",")
+#         # Add these songs back to the selected playlist
+#         sp.playlist_add_items(playlist_id, song_uris)
+#         return "Playlist recovered successfully!"
+#     else:
+#         return "Playlist not found!"
+# investigate this
 
 @app.route("/remove_duplicates", methods=["POST"])
 def remove_duplicates_route():
@@ -154,40 +182,6 @@ def remove_duplicates_route():
     remove_duplicates(sp, playlist_id)
 
     return "Duplicate tracks removed from the playlist!"
-
-
-# Route to export playlist data as CSV
-@app.route('/export', methods=["GET"])
-def export_playlist_data():
-    """Handle exporting playlist data as a CSV file."""
-    token_info = session.get("token_info")
-    if not token_info:
-        return redirect("/")  # redirect to home if no session token
-
-    sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
-    user_id = sp.me()["id"]
-    playlist_id = request.args.get("playlist_id")  # get selected playlist ID from form
-    selected_songs = get_selected_songs(user_id)  # retrieve previously selected songs for the user
-
-    # fetch tracks from the selected playlist
-    tracks = sp.playlist_items(playlist_id)["items"]
-    
-    # prepare CSV content
-    output = StringIO()
-    csv_writer = csv.writer(output)
-    csv_writer.writerow(['song_name', 'artist_name', 'song_uri', 'album_name', 'track_duration_ms'])  # header
-
-    for track in tracks:
-        song_name = track['track']['name']
-        artist_name = ', '.join([artist['name'] for artist in track['track']['artists']])
-        song_uri = track['track']['uri']
-        album_name = track['track']['album']['name']
-        track_duration_ms = track['track']['duration_ms']
-
-        csv_writer.writerow([song_name, artist_name, song_uri, album_name, track_duration_ms])  # data rows
-    
-    output.seek(0)  # reset pointer to the beginning of the file
-    return send_file(output, mimetype="text/csv", as_attachment=True, download_name="playlist_data.csv")
 
 @app.route('/history', methods=["GET"])
 def history():

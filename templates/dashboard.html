@@ -34,11 +34,13 @@
             <!-- Feature buttons -->
             <section class="features">
                 <h2>Additional Actions</h2>
-                <a href="{{ url_for('history') }}" class="feature-button">View Playlist History</a>
-                <a href="{{ url_for('export_playlist') }}" class="feature-button">Export Playlist Data</a>
-                <form action="{{ url_for('remove_duplicates_route') }}" method="POST" class="inline-form">
-                    <button type="submit" class="feature-button">Remove Duplicates</button>
-                </form>
+                <div class="button-container">
+                    <a href="{{ url_for('history') }}" class="spotify-button">View Playlist History</a>
+                    <a href="{{ url_for('export_playlist') }}" class="spotify-button">Export Playlist Data</a>
+                    <form action="{{ url_for('remove_duplicates_route') }}" method="POST" class="inline-form">
+                        <button type="submit" class="spotify-button">Remove Duplicates</button>
+                    </form>
+                </div>
             </section>
         </main>
         <footer>
