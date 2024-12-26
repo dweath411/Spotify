@@ -1,5 +1,7 @@
 import random
 from datetime import datetime
+from history import save_playlist_history
+
 
 def get_user_playlists(sp):
     """
@@ -63,6 +65,39 @@ def remove_duplicates(sp, playlist_id):
     else:
         print("No duplicates found in the playlist.")
 
+# def create_or_update_playlist(sp, user_id, large_playlist_id, selected_songs, overwrite=True):
+#     """
+#     create or update the 'origin radar' playlist.
+
+#     args:
+#         sp (spotipy.Spotify): the spotify client.
+#         user_id (str): spotify user id.
+#         large_playlist_id (str): id of the source playlist.
+#         selected_songs (list): list of previously selected song uris.
+#         overwrite (bool): whether to overwrite or create a new playlist.
+#     """
+#     # fetch tracks from the large playlist
+#     tracks = sp.playlist_items(large_playlist_id)["items"]
+#     track_uris = [t["track"]["uri"] for t in tracks if t["track"]["uri"] not in selected_songs]
+
+#     # randomly select 20 unique songs
+#     new_songs = random.sample(track_uris, min(len(track_uris), 20))
+
+#     # determine playlist name
+#     playlist_name = "Origin Radar 2.0"
+#     if not overwrite:
+#         playlist_name += f" - Week of {datetime.now().strftime('%b %d')}"
+
+#     # create or get existing playlist
+#     if overwrite:
+#         playlists = sp.user_playlists(user_id)
+#         radar_playlist = next((p for p in playlists["items"] if p["name"] == "Origin Radar 2.0"), None)
+#         if radar_playlist:
+#             sp.playlist_replace_items(radar_playlist["id"], new_songs)
+#             return
+#     playlist = sp.user_playlist_create(user_id, playlist_name, public=False)
+#     sp.playlist_add_items(playlist["id"], new_songs)
+
 def create_or_update_playlist(sp, user_id, large_playlist_id, selected_songs, overwrite=True):
     """
     create or update the 'origin radar' playlist.
@@ -86,12 +121,16 @@ def create_or_update_playlist(sp, user_id, large_playlist_id, selected_songs, ov
     if not overwrite:
         playlist_name += f" - Week of {datetime.now().strftime('%b %d')}"
 
-    # create or get existing playlist
+    # create or update the playlist
     if overwrite:
         playlists = sp.user_playlists(user_id)
         radar_playlist = next((p for p in playlists["items"] if p["name"] == "Origin Radar 2.0"), None)
         if radar_playlist:
             sp.playlist_replace_items(radar_playlist["id"], new_songs)
+            # save playlist history
+            save_playlist_history(user_id, playlist_name, radar_playlist["id"])
             return
     playlist = sp.user_playlist_create(user_id, playlist_name, public=False)
     sp.playlist_add_items(playlist["id"], new_songs)
+    # save playlist history
+    save_playlist_history(user_id, playlist_name, playlist["id"])

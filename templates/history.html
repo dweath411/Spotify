@@ -22,14 +22,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for playlist in playlists %}
+                    {% if playlists %}
+                        {% for playlist in playlists %}
+                            <tr>
+                                <td>{{ playlist[0] }}</td>
+                                <td>{{ playlist[1] }}</td>
+                                <td>{{ playlist[2] }}</td>
+                                <td><a href="{{ url_for('recover_playlist', playlist_id=playlist[1]) }}" class="spotify-button">Recover Playlist</a></td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
                         <tr>
-                            <td>{{ playlist[0] }}</td>
-                            <td>{{ playlist[1] }}</td>
-                            <td>{{ playlist[3] }}</td>
-                            <td><a href="{{ url_for('recover_playlist', playlist_id=playlist[1]) }}" class="spotify-button">Recover Playlist</a></td>
+                            <td colspan="4">No playlist history found.</td>
                         </tr>
-                    {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
         </main>

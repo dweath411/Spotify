@@ -143,29 +143,29 @@ def export_playlist():
 
 
 
-# @app.route('/recover_playlist', methods=["GET"])
-# def recover_playlist():
-#     """Recover a previous playlist based on the playlist ID."""
-#     playlist_id = request.args.get("playlist_id")
-#     token_info = session.get("token_info")
-#     if not token_info:
-#         return redirect("/")  # redirect to home if no session token
+@app.route('/recover_playlist', methods=['GET'])
+def recover_playlist():
+    """Recover a previous playlist based on the playlist ID."""
+    playlist_id = request.args.get("playlist_id")
+    token_info = session.get("token_info")
+    if not token_info:
+        return redirect("/")  # redirect to home if no session token
 
-#     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
-#     user_id = sp.me()["id"]
+    sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
+    user_id = sp.me()["id"]
 
-#     # fetch previous playlist songs from the database
-#     playlist_data = get_playlist_history(user_id)
-#     previous_playlist = next((p for p in playlist_data if p[1] == playlist_id), None)
+    # fetch previous playlist songs from the database
+    playlist_data = get_playlist_history(user_id)
+    previous_playlist = next((p for p in playlist_data if p[1] == playlist_id), None)
     
-#     if previous_playlist:
-#         song_uris = previous_playlist[3].split(",")
-#         # Add these songs back to the selected playlist
-#         sp.playlist_add_items(playlist_id, song_uris)
-#         return "Playlist recovered successfully!"
-#     else:
-#         return "Playlist not found!"
-# investigate this
+    if previous_playlist:
+        song_uris = previous_playlist[3].split(",")
+        # add these songs back to the selected playlist
+        sp.playlist_add_items(playlist_id, song_uris)
+        return "Playlist recovered successfully!"
+    else:
+        return "Playlist not found!"
+
 
 @app.route("/remove_duplicates", methods=["POST"])
 def remove_duplicates_route():
@@ -175,13 +175,45 @@ def remove_duplicates_route():
         return redirect("/")  # redirect to home if no session token
 
     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
-    user_id = sp.me()["id"]
-    playlist_id = request.form["playlist_id"]  # get selected playlist ID from form
+    playlist_id = request.form.get("playlist_id")  # get selected playlist ID from form
 
-    # call the remove_duplicates function
+    if not playlist_id:
+        return "Playlist ID is missing.", 400
+
     remove_duplicates(sp, playlist_id)
 
     return "Duplicate tracks removed from the playlist!"
+
+
+# @app.route("/remove_duplicates", methods=["POST"])
+# def remove_duplicates_route():
+#     """Remove duplicate tracks from a playlist."""
+#     token_info = session.get("token_info")
+#     if not token_info:
+#         return redirect("/")  # redirect to home if no session token
+
+#     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
+#     user_id = sp.me()["id"]
+#     playlist_id = request.form["playlist_id"]  # get selected playlist ID from form
+
+#     # call the remove_duplicates function
+#     remove_duplicates(sp, playlist_id)
+
+#     return "Duplicate tracks removed from the playlist!"
+
+# @app.route('/history', methods=["GET"])
+# def history():
+#     """Display playlist history for the authenticated user."""
+#     token_info = session.get("token_info")
+#     if not token_info:
+#         return redirect("/")  # redirect to home if no session token
+
+#     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
+#     user_id = sp.me()["id"]
+    
+#     playlists = get_playlist_history(user_id)  # retrieve user's playlist history
+
+#     return render_template("history.html", playlists=playlists)
 
 @app.route('/history', methods=["GET"])
 def history():
@@ -192,10 +224,13 @@ def history():
 
     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
     user_id = sp.me()["id"]
-    
-    playlists = get_playlist_history(user_id)  # retrieve user's playlist history
 
+    # fetch user's playlist history
+    playlists = get_user_history(user_id)
+
+    # pass data to the template
     return render_template("history.html", playlists=playlists)
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5001)))
