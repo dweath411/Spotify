@@ -1,6 +1,7 @@
 import random
 from datetime import datetime
 from history import save_playlist_history
+from database import add_selected_songs
 
 
 def get_user_playlists(sp):
@@ -65,6 +66,7 @@ def remove_duplicates(sp, playlist_id):
     else:
         print("No duplicates found in the playlist.")
 
+
 # def create_or_update_playlist(sp, user_id, large_playlist_id, selected_songs, overwrite=True):
 #     """
 #     create or update the 'origin radar' playlist.
@@ -75,6 +77,10 @@ def remove_duplicates(sp, playlist_id):
 #         large_playlist_id (str): id of the source playlist.
 #         selected_songs (list): list of previously selected song uris.
 #         overwrite (bool): whether to overwrite or create a new playlist.
+
+#     returns:
+#         dict: details of the new or updated playlist.
+#         list: list of added song URIs.
 #     """
 #     # fetch tracks from the large playlist
 #     tracks = sp.playlist_items(large_playlist_id)["items"]
@@ -83,54 +89,63 @@ def remove_duplicates(sp, playlist_id):
 #     # randomly select 20 unique songs
 #     new_songs = random.sample(track_uris, min(len(track_uris), 20))
 
+#     # add new songs to the selected_songs table
+#     add_selected_songs(user_id, new_songs)
+
 #     # determine playlist name
 #     playlist_name = "Origin Radar 2.0"
 #     if not overwrite:
 #         playlist_name += f" - Week of {datetime.now().strftime('%b %d')}"
 
-#     # create or get existing playlist
+#     # create or update the playlist
 #     if overwrite:
 #         playlists = sp.user_playlists(user_id)
 #         radar_playlist = next((p for p in playlists["items"] if p["name"] == "Origin Radar 2.0"), None)
 #         if radar_playlist:
 #             sp.playlist_replace_items(radar_playlist["id"], new_songs)
-#             return
+#             return radar_playlist, new_songs
+
 #     playlist = sp.user_playlist_create(user_id, playlist_name, public=False)
 #     sp.playlist_add_items(playlist["id"], new_songs)
+#     return playlist, new_songs
 
 def create_or_update_playlist(sp, user_id, large_playlist_id, selected_songs, overwrite=True):
     """
-    create or update the 'origin radar' playlist.
+    Create or update the 'Origin Radar' playlist.
 
-    args:
-        sp (spotipy.Spotify): the spotify client.
-        user_id (str): spotify user id.
-        large_playlist_id (str): id of the source playlist.
-        selected_songs (list): list of previously selected song uris.
-        overwrite (bool): whether to overwrite or create a new playlist.
+    Args:
+        sp (spotipy.Spotify): The Spotify client.
+        user_id (str): Spotify user ID.
+        large_playlist_id (str): ID of the source playlist.
+        selected_songs (list): List of previously selected song URIs.
+        overwrite (bool): Whether to overwrite or create a new playlist.
+
+    Returns:
+        dict: Details of the new or updated playlist.
+        list: List of added song URIs.
     """
-    # fetch tracks from the large playlist
+    # Fetch tracks from the large playlist
     tracks = sp.playlist_items(large_playlist_id)["items"]
     track_uris = [t["track"]["uri"] for t in tracks if t["track"]["uri"] not in selected_songs]
 
-    # randomly select 20 unique songs
+    # Randomly select 20 unique songs
     new_songs = random.sample(track_uris, min(len(track_uris), 20))
 
-    # determine playlist name
+    # Determine playlist name
     playlist_name = "Origin Radar 2.0"
     if not overwrite:
         playlist_name += f" - Week of {datetime.now().strftime('%b %d')}"
 
-    # create or update the playlist
+    # Create or update the playlist
     if overwrite:
         playlists = sp.user_playlists(user_id)
         radar_playlist = next((p for p in playlists["items"] if p["name"] == "Origin Radar 2.0"), None)
         if radar_playlist:
             sp.playlist_replace_items(radar_playlist["id"], new_songs)
-            # save playlist history
-            save_playlist_history(user_id, playlist_name, radar_playlist["id"])
-            return
+            save_playlist_history(user_id, playlist_name, radar_playlist["id"], new_songs)
+            return radar_playlist, new_songs
+
     playlist = sp.user_playlist_create(user_id, playlist_name, public=False)
     sp.playlist_add_items(playlist["id"], new_songs)
-    # save playlist history
-    save_playlist_history(user_id, playlist_name, playlist["id"])
+    save_playlist_history(user_id, playlist_name, playlist["id"], new_songs)
+    return playlist, new_songs

@@ -1,9 +1,10 @@
 import sqlite3
 
 def initialize_db():
-    """initialize the sqlite database for storing selected songs and playlist history."""
+    """Initialize the SQLite database for storing selected songs and playlist history."""
     conn = sqlite3.connect("app.db")
     cursor = conn.cursor()
+    # table for selected songs
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS selected_songs (
@@ -12,6 +13,7 @@ def initialize_db():
         )
         """
     )
+    # table for playlist history
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS playlist_history (
@@ -19,12 +21,35 @@ def initialize_db():
             playlist_name TEXT,
             playlist_id TEXT,
             song_uris TEXT,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """
     )
     conn.commit()
     conn.close()
+
+def add_song_uris_column():
+    """
+    Add the 'song_uris' column to the 'playlist_history' table if it doesn't already exist.
+    """
+    conn = sqlite3.connect("app.db")
+    cursor = conn.cursor()
+
+    # Check if 'song_uris' column exists
+    cursor.execute("PRAGMA table_info(playlist_history)")
+    columns = [column[1] for column in cursor.fetchall()]
+    if "song_uris" not in columns:
+        cursor.execute("ALTER TABLE playlist_history ADD COLUMN song_uris TEXT")
+        conn.commit()
+        print("Added 'song_uris' column to 'playlist_history' table.")
+    else:
+        print("'song_uris' column already exists in 'playlist_history' table.")
+    
+    conn.close()
+
+if __name__ == "__main__":
+    add_song_uris_column()
+
 
 def add_selected_songs(user_id, songs):
     """add songs to the database."""

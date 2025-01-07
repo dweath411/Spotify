@@ -13,31 +13,59 @@ def initialize_history_db():
             user_id TEXT,
             playlist_name TEXT,
             playlist_id TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            song_uris TEXT,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """
     )
     conn.commit()
     conn.close()
 
+# def save_playlist_history(user_id, playlist_name, playlist_id, song_uris):
+#     """
+#     Save details of a created playlist.
 
-def save_playlist_history(user_id, playlist_name, playlist_id):
-    """
-    save details of a created playlist.
+#     Args:
+#         user_id (str): Spotify user ID.
+#         playlist_name (str): Name of the playlist.
+#         playlist_id (str): ID of the playlist.
+#         song_uris (list): URIs of the songs in the playlist.
+#     """
+#     conn = sqlite3.connect("app.db")
+#     cursor = conn.cursor()
+#     cursor.execute(
+#         "INSERT INTO playlist_history (user_id, playlist_name, playlist_id, song_uris) VALUES (?, ?, ?, ?)",
+#         (user_id, playlist_name, playlist_id, ','.join(song_uris)),
+#     )
+#     conn.commit()
+#     conn.close()
 
-    args:
-        user_id (str): spotify user id.
-        playlist_name (str): name of the playlist.
-        playlist_id (str): id of the playlist.
+def save_playlist_history(user_id, playlist_name, playlist_id, song_uris):
     """
+    Save details of a created playlist.
+
+    Args:
+        user_id (str): Spotify user ID.
+        playlist_name (str): Name of the playlist.
+        playlist_id (str): ID of the playlist.
+        song_uris (list): URIs of the songs in the playlist.
+    """
+    # Debugging: Output the data being saved
+    print(f"Saving playlist: {playlist_name}, ID: {playlist_id}, Songs: {song_uris}")
+
     conn = sqlite3.connect("app.db")
     cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO playlist_history (user_id, playlist_name, playlist_id) VALUES (?, ?, ?)",
-        (user_id, playlist_name, playlist_id),
-    )
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute(
+            "INSERT INTO playlist_history (user_id, playlist_name, playlist_id, song_uris) VALUES (?, ?, ?, ?)",
+            (user_id, playlist_name, playlist_id, ','.join(song_uris)),
+        )
+        conn.commit()
+        print(f"Playlist {playlist_name} saved successfully!")
+    except sqlite3.Error as e:
+        print(f"Error saving playlist history: {e}")
+    finally:
+        conn.close()
 
 
 def get_user_history(user_id):

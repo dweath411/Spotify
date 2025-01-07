@@ -81,6 +81,11 @@ def create():
     if not token_info:
         return redirect("/")  # redirect to home if no session token
 
+    # refresh the token if it's expired
+    if sp_oauth.is_token_expired(token_info):
+        token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
+        session["token_info"] = token_info
+
     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
     playlist_id = request.form["playlist_id"]  # get selected playlist ID from form
     overwrite = request.form.get("overwrite") == "on"  # check if overwrite is selected
@@ -90,13 +95,14 @@ def create():
     selected_songs = get_selected_songs(user_id)
 
     # create or update the playlist
-    new_playlist = create_or_update_playlist(sp, user_id, playlist_id, selected_songs, overwrite)
+    new_playlist, new_songs = create_or_update_playlist(sp, user_id, playlist_id, selected_songs, overwrite)
 
     # save the new playlist details to the history database
     if new_playlist:
-        save_playlist_history(user_id, new_playlist['name'], new_playlist['id'])
+        save_playlist_history(user_id, new_playlist['name'], new_playlist['id'], ','.join(new_songs))
 
     return "Playlist updated successfully!"
+
 
 
 @app.route('/export', methods=['GET', 'POST'])
@@ -214,6 +220,24 @@ def remove_duplicates_route():
 #     playlists = get_playlist_history(user_id)  # retrieve user's playlist history
 
 #     return render_template("history.html", playlists=playlists)
+# og version
+
+# @app.route('/history', methods=["GET"])
+# def history():
+#     """Display playlist history for the authenticated user."""
+#     token_info = session.get("token_info")
+#     if not token_info:
+#         return redirect("/")  # redirect to home if no session token
+
+#     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
+#     user_id = sp.me()["id"]
+
+#     # fetch user's playlist history
+#     playlists = get_user_history(user_id)
+
+#     # pass data to the template
+#     return render_template("history.html", playlists=playlists)
+# most recent version (nonworking)
 
 @app.route('/history', methods=["GET"])
 def history():
@@ -222,13 +246,15 @@ def history():
     if not token_info:
         return redirect("/")  # redirect to home if no session token
 
+    # refresh the token if it's expired
+    if sp_oauth.is_token_expired(token_info):
+        token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
+        session["token_info"] = token_info
+
     sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
     user_id = sp.me()["id"]
 
-    # fetch user's playlist history
-    playlists = get_user_history(user_id)
-
-    # pass data to the template
+    playlists = get_user_history(user_id)  # retrieve user's playlist history
     return render_template("history.html", playlists=playlists)
 
 
