@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Song Analysis - {{ time_range.replace('_', ' ').title() }}</h1>
+        </header>
+        <main>
+            <img src="data:image/png;base64,{{ plot_data }}" alt="Song Analysis Plot">
+        </main>
+        <footer>
+            <a href="{{ url_for('dashboard') }}" class="spotify-button">Back to Dashboard</a>
+        </footer>
+    </div>
+</body>
+</html>

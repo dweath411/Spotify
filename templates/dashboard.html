@@ -30,12 +30,20 @@
                     <button type="submit" class="submit-button">Create Playlist</button>
                 </form>
             </section>
-
+            <!-- Song analysis-->
+            <section class="song-analysis">
+                <h2>Analyze Your Listening Habits</h2>
+                <div class="button-container">
+                    <a href="{{ url_for('song_analysis', time_range='short_term') }}" class="spotify-button">Past Week</a>
+                    <a href="{{ url_for('song_analysis', time_range='medium_term') }}" class="spotify-button">Past 6 Months</a>
+                    <a href="{{ url_for('song_analysis', time_range='long_term') }}" class="spotify-button">Past Year</a>
+                </div>
+            </section>
+            
             <!-- Feature buttons -->
             <section class="features">
                 <h2>Additional Actions</h2>
                 <div class="button-container">
-                    <a href="{{ url_for('history') }}" class="spotify-button">View Playlist History</a>
                     <a href="{{ url_for('export_playlist') }}" class="spotify-button">Export Playlist Data</a>
                 </div>
 
