@@ -2,13 +2,14 @@ import csv
 from spotipy import Spotify
 import os
 
-def export_playlist_to_csv(sp, playlist_id, file_name="playlist_export.csv"):
+def export_playlist_to_csv(sp, playlist_id, playlist_name, file_name="playlist_export.csv"):
     """
     Export a playlist's track details to a CSV file.
 
     Args:
         sp (spotipy.Spotify): the Spotify client.
         playlist_id (str): ID of the playlist to export.
+        playlist_name (str): User-input name of the playlist.
         file_name (str): Name of the output CSV file.
     """
     try:
@@ -36,22 +37,26 @@ def export_playlist_to_csv(sp, playlist_id, file_name="playlist_export.csv"):
         # Open a CSV file to write the data
         with open(file_name, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(["Playlist Name", "Track Name", "Artist Name", "Album Name", "Duration (ms)", "Popularity", "Release Date"])
+            # Write header with additional Playlist Name column
+            writer.writerow(["Playlist ID", "Playlist Name", "Track Name", "Artist Name", "Album Name", "Duration (s)", "Popularity", "Release Date"])
 
             for track in all_tracks:
                 track_name = track["track"]["name"]
                 artist_name = ", ".join([artist["name"] for artist in track["track"]["artists"]])
                 album_name = track["track"]["album"]["name"]
-                duration_ms = track["track"]["duration_ms"]
+                duration_s = track["track"]["duration_ms"] // 1000  # Convert ms to seconds
                 popularity = track["track"]["popularity"]
                 release_date = track["track"]["album"]["release_date"]
 
                 # Write the data for this track into the CSV file
-                writer.writerow([playlist_id, track_name, artist_name, album_name, duration_ms, popularity, release_date])
+                writer.writerow([playlist_id, playlist_name, track_name, artist_name, album_name, duration_s, popularity, release_date])
 
-        print(f"Exported playlist {playlist_id} to {file_name}")
-        return f"Playlist {playlist_id} exported successfully."
+        print(f"Exported playlist {playlist_name} ({playlist_id}) to {file_name}")
+        return f"Playlist {playlist_name} exported successfully."
 
     except Exception as e:
         print(f"Error writing to CSV: {e}")
         return "Error saving CSV file."
+
+# function callable by the following command ->
+# export_playlist_to_csv(sp, "4oeP3PbakXBlj8tPh3nEPx", "My Awesome Playlist")
