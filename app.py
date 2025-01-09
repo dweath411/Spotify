@@ -7,8 +7,13 @@ from export import export_playlist_to_csv
 import os
 from analysis import fetch_top_tracks, generate_analysis_plot
 import csv
+import base64
 import re
-from io import StringIO
+import io
+import matplotlib
+matplotlib.use("Agg") # delete this when deployed on Render
+import matplotlib.pyplot as plt
+from io import StringIO, BytesIO
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -120,22 +125,84 @@ def export_playlist():
         except Exception as e:
             return render_template('export.html', error=f"An error occurred: {e}")
 
+# @app.route("/analysis/<time_range>")
+# def song_analysis(time_range):
+#     token_info = session.get("token_info")
+#     if not token_info:
+#         return redirect("/")  # Redirect if user is not authenticated
 
-@app.route("/song_analysis/<time_range>")
-def song_analysis(time_range):
-    """Display top songs analysis for the selected time range."""
-    token_info = session.get("token_info")
-    if not token_info:
-        return redirect("/")
+#     sp = Spotify(auth=token_info["access_token"])
+    
+#     # Fetch top tracks for the specified time range
+#     tracks = fetch_top_tracks(sp, time_range=time_range)
 
-    sp = Spotify(auth=token_info["access_token"])
+#     # Generate analysis plot
+#     img = BytesIO()
+#     generate_analysis_plot(tracks, img)
+#     img.seek(0)
+
+#     # Pass the image and analysis data to the template
+#     return render_template(
+#         "analysis.html", 
+#         time_range=time_range, 
+#         img_data=img.getvalue().decode("latin1")
+#     )
+
+# def fetch_top_tracks(sp, time_range, limit=10):
+#     results = sp.current_user_top_tracks(time_range=time_range, limit=limit)
+#     return results["items"]
+
+# def generate_analysis_plot(tracks, img):
+#     song_names = [track["name"] for track in tracks]
+#     play_counts = [track["popularity"] for track in tracks]  # Simulate play counts for demo
+
+#     # Plot
+#     plt.figure(figsize=(10, 6))
+#     plt.barh(song_names, play_counts, color="#1DB954")
+#     plt.xlabel("Popularity")
+#     plt.title("Top Tracks Analysis")
+#     plt.tight_layout()
+
+#     # Save to memory buffer
+#     plt.savefig(img, format="png")
+#     plt.close()
+
+@app.route('/analysis', methods=['GET'])
+def song_analysis():
+    time_range = request.args.get('time_range', 'medium_term')  # Default to medium_term
+    sp = Spotify(auth=session.get("token_info")["access_token"])
+
+    # Fetch top tracks
     tracks = fetch_top_tracks(sp, time_range=time_range)
 
-    if not tracks:
-        return "No tracks found for this time range."
+    # Prepare data for plotting
+    track_names = [track["name"] for track in tracks]
+    track_durations = [track["duration_ms"] / 3600000 for track in tracks]  # Convert ms to hours
 
-    plot_data = generate_analysis_plot(tracks, time_range)
-    return render_template("song_analysis.html", plot_data=plot_data, time_range=time_range)
+    # Generate the plot
+    plt.figure(figsize=(10, 6))
+    plt.barh(track_names, track_durations, color="#1DB954")
+    plt.xlabel("Hours Listened")
+    plt.ylabel("Track Name")
+    plt.title(f"Top 10 Tracks - {time_range.replace('_', ' ').title()}")
+    plt.gca().invert_yaxis()  # Invert y-axis for better readability
+
+    # Save plot to a bytes buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    plt.close()
+
+    # Encode plot as base64 string
+    plot_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    print(plot_data[:100])
+
+    return render_template(
+        "analysis.html",
+        time_range=time_range.replace("_", " ").title(),
+        plot_data=plot_data
+    )
+# works but needs updating on the plot labels, also the time logic. I listened to more than 0.12 hours of Fruitcakes and Cookies in the past 6 months.
 
 @app.route("/remove_duplicates", methods=["POST"])
 def remove_duplicates_route():
