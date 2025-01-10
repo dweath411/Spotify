@@ -13,7 +13,7 @@
             <p>Manage your playlists, export data, and create unique experiences!</p>
         </header>
         <main>
-            <!-- Playlist selection form -->
+            <!-- playlist selection form -->
             <section class="playlist-section">
                 <h2>Choose a Playlist</h2>
                 <form action="{{ url_for('create') }}" method="POST">
@@ -30,7 +30,7 @@
                     <button type="submit" class="submit-button">Create Playlist</button>
                 </form>
             </section>
-            <!-- Song analysis-->
+            <!-- song analysis-->
             <section class="song-analysis">
                 <h2>Analyze Your Listening Habits</h2>
                 <div class="button-container">
@@ -40,14 +40,14 @@
                 </div>
             </section>
             
-            <!-- Feature buttons -->
+            <!-- feature buttons -->
             <section class="features">
                 <h2>Additional Actions</h2>
                 <div class="button-container">
                     <a href="{{ url_for('export_playlist') }}" class="spotify-button">Export Playlist Data</a>
                 </div>
 
-                <!-- Remove duplicates form -->
+                <!-- remove duplicates form -->
                 <form action="{{ url_for('remove_duplicates_route') }}" method="POST">
                     <label for="playlist_id">Select a Playlist to Remove Duplicates:</label>
                     <select id="playlist_id" name="playlist_id" required>

@@ -1,4 +1,4 @@
-/* General body styling with Spotify black gradient */
+/* general body styling with Spotify black gradient */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -6,7 +6,7 @@ body {
     color: white;
 }
 
-/* Green buttons remain the same */
+/* green buttons remain the same */
 .spotify-button, .submit-button {
     background-color: #1DB954; /* Spotify green */
     color: white;
@@ -32,11 +32,11 @@ body {
 }
 
 .spotify-button:active {
-    background-color: #158837; /* Even darker green for active state */
+    background-color: #158837; /* even darker green for active state */
     box-shadow: inset 0px 4px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* Center content on the page */
+/* center content on the page */
 .center-content {
     display: flex;
     flex-direction: column;
@@ -44,13 +44,13 @@ body {
     justify-content: center;
 }
 
-/* Adjusted margins for buttons */
+/* adjusted margins for buttons */
 button,
 a.spotify-button {
     margin: 10px auto;
 }
 
-/* Specific styles for dashboard page */
+/* specific styles for dashboard page */
 .additional-actions {
     text-align: center;
 }
@@ -69,7 +69,7 @@ body {
     text-align: center;
 }
 
-/* Ensure footer and other text remain consistent */
+/* ensure footer and other text remain consistent */
 footer {
     text-align: center;
     font-size: 0.8rem;
@@ -78,8 +78,8 @@ footer {
 }
 
 .logo {
-    width: 150px; /* Adjust as needed */
-    height: auto; /* Maintains aspect ratio */
+    width: 150px; 
+    height: auto; /* maintains aspect ratio */
     display: block;
-    margin: 0 auto; /* Centers the logo */
+    margin: 0 auto; /* centers the logo */
 }

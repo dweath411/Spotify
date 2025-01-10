@@ -1,9 +1,8 @@
 from flask import Flask, request, redirect, render_template, url_for, session, send_file, Response
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
-from playlist import create_or_update_playlist, get_user_playlists, remove_duplicates
+from playlist import create_or_update_playlist, get_user_playlists, remove_duplicates, export_playlist_to_csv
 from database import initialize_db, add_selected_songs, get_selected_songs
-from export import export_playlist_to_csv
 import os
 from analysis import fetch_top_tracks, generate_analysis_plot
 import csv
@@ -82,80 +81,37 @@ def create():
 
     return "Playlist updated successfully!"
 
-
-# this app route doesn't handle the new column naming 
-
-# @app.route('/export', methods=['GET', 'POST'])
-# def export_playlist():
-#     token_info = session.get("token_info")
-#     if not token_info:
-#         return redirect("/")  # Redirect to home if no session token
-
-#     sp = Spotify(auth=token_info["access_token"])  # Reinitialize Spotify client
-
-#     if request.method == 'GET':
-#         # Fetch user's playlists for dropdown menu
-#         playlists = sp.current_user_playlists()["items"]
-#         return render_template('export.html', playlists=playlists)
-
-#     elif request.method == 'POST':
-#         raw_input = request.form.get('playlist_id')
-
-#         # Extract playlist ID if input is a URI or URL
-#         playlist_id = None
-#         if re.match(r"spotify:playlist:[a-zA-Z0-9]+", raw_input):
-#             playlist_id = raw_input.split(":")[-1]  # Extract ID from URI
-#         elif re.match(r"https://open\.spotify\.com/playlist/[a-zA-Z0-9]+", raw_input):
-#             playlist_id = raw_input.split("/")[-1].split("?")[0]  # Extract ID from URL
-#         else:
-#             playlist_id = raw_input  # Assume it's a raw playlist ID
-
-#         # Validate playlist ID
-#         if not playlist_id:
-#             return render_template('export.html', error="Invalid Playlist ID or URI.")
-
-#         try:
-#             # Call the export function
-#             csv_file = f"playlist_{playlist_id}.csv"
-#             message = export_playlist_to_csv(sp, playlist_id, file_name=csv_file)
-
-#             if "successfully" in message:
-#                 return send_file(csv_file, as_attachment=True)
-#             else:
-#                 return render_template('export.html', error=message)
-#         except Exception as e:
-#             return render_template('export.html', error=f"An error occurred: {e}")
 @app.route('/export', methods=['GET', 'POST'])
 def export_playlist():
     token_info = session.get("token_info")
     if not token_info:
-        return redirect("/")  # Redirect to home if no session token
+        return redirect("/")  # redirect to home if no session token
 
-    sp = Spotify(auth=token_info["access_token"])  # Reinitialize Spotify client
+    sp = Spotify(auth=token_info["access_token"])  # reinitialize Spotify client
 
     if request.method == 'GET':
-        # Fetch user's playlists for dropdown menu
+        # fetch user's playlists for dropdown menu
         playlists = sp.current_user_playlists()["items"]
         return render_template('export.html', playlists=playlists)
 
     elif request.method == 'POST':
         raw_input = request.form.get('playlist_id')
 
-        # Extract playlist ID if input is a URI or URL
+        # extract playlist ID if input is a URI or URL
         playlist_id = None
         playlist_name = None
         if re.match(r"spotify:playlist:[a-zA-Z0-9]+", raw_input):
-            playlist_id = raw_input.split(":")[-1]  # Extract ID from URI
+            playlist_id = raw_input.split(":")[-1]  # extract ID from URI
         elif re.match(r"https://open\.spotify\.com/playlist/[a-zA-Z0-9]+", raw_input):
-            playlist_id = raw_input.split("/")[-1].split("?")[0]  # Extract ID from URL
+            playlist_id = raw_input.split("/")[-1].split("?")[0]  # extract ID from URL
         else:
-            playlist_id = raw_input  # Assume it's a raw playlist ID
+            playlist_id = raw_input  # assume it's a raw playlist ID
 
-        # Validate playlist ID
+        # validate playlist ID
         if not playlist_id:
             return render_template('export.html', error="Invalid Playlist ID or URI.")
 
-        # Fetch playlist name from Spotify API
+        # fetch playlist name from Spotify API
         try:
             playlist = sp.playlist(playlist_id)
             playlist_name = playlist["name"]
@@ -163,7 +119,7 @@ def export_playlist():
             return render_template('export.html', error=f"Error fetching playlist details: {e}")
 
         try:
-            # Call the export function
+            # call the export function
             csv_file = f"playlist_{playlist_id}.csv"
             message = export_playlist_to_csv(sp, playlist_id, playlist_name, file_name=csv_file)
 
@@ -175,75 +131,33 @@ def export_playlist():
             return render_template('export.html', error=f"An error occurred: {e}")
 
 
-# @app.route("/analysis/<time_range>")
-# def song_analysis(time_range):
-#     token_info = session.get("token_info")
-#     if not token_info:
-#         return redirect("/")  # Redirect if user is not authenticated
-
-#     sp = Spotify(auth=token_info["access_token"])
-    
-#     # Fetch top tracks for the specified time range
-#     tracks = fetch_top_tracks(sp, time_range=time_range)
-
-#     # Generate analysis plot
-#     img = BytesIO()
-#     generate_analysis_plot(tracks, img)
-#     img.seek(0)
-
-#     # Pass the image and analysis data to the template
-#     return render_template(
-#         "analysis.html", 
-#         time_range=time_range, 
-#         img_data=img.getvalue().decode("latin1")
-#     )
-
-# def fetch_top_tracks(sp, time_range, limit=10):
-#     results = sp.current_user_top_tracks(time_range=time_range, limit=limit)
-#     return results["items"]
-
-# def generate_analysis_plot(tracks, img):
-#     song_names = [track["name"] for track in tracks]
-#     play_counts = [track["popularity"] for track in tracks]  # Simulate play counts for demo
-
-#     # Plot
-#     plt.figure(figsize=(10, 6))
-#     plt.barh(song_names, play_counts, color="#1DB954")
-#     plt.xlabel("Popularity")
-#     plt.title("Top Tracks Analysis")
-#     plt.tight_layout()
-
-#     # Save to memory buffer
-#     plt.savefig(img, format="png")
-#     plt.close()
-
 @app.route('/analysis', methods=['GET'])
 def song_analysis():
-    time_range = request.args.get('time_range', 'medium_term')  # Default to medium_term
+    time_range = request.args.get('time_range', 'medium_term')  # default to medium_term
     sp = Spotify(auth=session.get("token_info")["access_token"])
 
-    # Fetch top tracks
+    # fetch top tracks
     tracks = fetch_top_tracks(sp, time_range=time_range)
 
-    # Prepare data for plotting
+    # prepare data for plotting
     track_names = [track["name"] for track in tracks]
-    track_durations = [track["duration_ms"] / 3600000 for track in tracks]  # Convert ms to hours
+    track_durations = [track["duration_ms"] / 3600000 for track in tracks]  # convert ms to hours
 
-    # Generate the plot
+    # generate the plot
     plt.figure(figsize=(10, 6))
     plt.barh(track_names, track_durations, color="#1DB954")
     plt.xlabel("Hours Listened")
     plt.ylabel("Track Name")
     plt.title(f"Top 10 Tracks - {time_range.replace('_', ' ').title()}")
-    plt.gca().invert_yaxis()  # Invert y-axis for better readability
+    plt.gca().invert_yaxis()  # invert y-axis for better readability
 
-    # Save plot to a bytes buffer
+    # save plot to a bytes buffer
     buffer = io.BytesIO()
     plt.savefig(buffer, format="png")
     buffer.seek(0)
     plt.close()
 
-    # Encode plot as base64 string
+    # encode plot as base64 string
     plot_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
     print(plot_data[:100])
 
@@ -252,35 +166,6 @@ def song_analysis():
         time_range=time_range.replace("_", " ").title(),
         plot_data=plot_data
     )
-
-# backup analysis route:
-# @app.route('/analysis', methods=['GET'])
-# def song_analysis():
-#     time_range = request.args.get('time_range', 'medium_term')  # Default to medium_term
-#     token_info = session.get("token_info")
-#     if not token_info:
-#         return redirect("/")  # Redirect to login if session is expired or missing
-
-#     sp = Spotify(auth=token_info["access_token"])  # Reinitialize Spotify client
-
-#     try:
-#         # Fetch top tracks using the updated analysis function
-#         tracks = fetch_top_tracks(sp, time_range=time_range)
-
-#         # Generate analysis plot using the new logic
-#         plot_data = generate_analysis_plot(tracks, time_range)
-
-#         return render_template(
-#             "analysis.html",
-#             time_range=time_range.replace("_", " ").title(),
-#             plot_data=plot_data
-#         )
-#     except Exception as e:
-#         return render_template(
-#             "analysis.html",
-#             time_range=time_range.replace("_", " ").title(),
-#             error=f"An error occurred: {e}"
-#         )
 
 @app.route("/remove_duplicates", methods=["POST"])
 def remove_duplicates_route():

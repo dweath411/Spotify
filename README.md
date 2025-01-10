@@ -9,6 +9,7 @@ Spotify Origin Radar is a web application that allows users to create a weekly c
 - Ensure no repeated songs are added using an SQLite database.
 - Export playlist data into a .csv file for analysis
 - Remove duplicates from playlists.
+- View your top tracks from the past week, past 6 months, and past year.
 
 ## Spotipy Documentation 
 https://spotipy.readthedocs.io/en/2.24.0/
