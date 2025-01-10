@@ -101,3 +101,4 @@ def generate_analysis_plot(tracks, time_range):
 
     return plot_data
 
+
