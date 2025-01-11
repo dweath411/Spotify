@@ -27,7 +27,7 @@ load_dotenv()
 CLIENT_ID = os.getenv("CLIENT_ID") # insert your client_id here if developer
 CLIENT_SECRET = os.getenv("CLIENT_SECRET") # insert your client_secret here if developer
 REDIRECT_URI = os.getenv("REDIRECT_URI") # insert your own redirecturi from Spotify
-SCOPE = "user-top-read playlist-modify-public playlist-modify-private playlist-read-private"
+SCOPE = os.getenv("SCOPE") # insert the scope
 
 # initialize database
 initialize_db()
