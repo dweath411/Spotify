@@ -19,7 +19,7 @@ app.secret_key = os.urandom(24)
 
 from dotenv import load_dotenv
 # load .env variables only in local development
-if os.getenv("RENDER") is None:  # Check if the app is not running on Render
+if os.getenv("RENDER") is None:  # check if the app is not running on Render
     load_dotenv()
 # load environment variables from the .env file
 # load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
@@ -46,18 +46,46 @@ def home():
     return render_template("index.html", auth_url=auth_url)
 
 
+# @app.route("/callback")
+# def callback():
+#     """Handle Spotify login callback and fetch user's playlists."""
+#     code = request.args.get("code")  # get authorization code from callback
+#     token_info = sp_oauth.get_access_token(code)  # exchange code for access token
+#     session["token_info"] = token_info  # store token info in session
+
+#     sp = Spotify(auth=token_info["access_token"])  # initialize Spotify client
+#     playlists = get_user_playlists(sp)  # fetch user's playlists
+
+#     return render_template("dashboard.html", playlists=playlists)  # show playlist dropdown
+
 @app.route("/callback")
 def callback():
     """Handle Spotify login callback and fetch user's playlists."""
     code = request.args.get("code")  # get authorization code from callback
-    token_info = sp_oauth.get_access_token(code)  # exchange code for access token
-    session["token_info"] = token_info  # store token info in session
+    error = request.args.get("error")  # check for error parameter
 
-    sp = Spotify(auth=token_info["access_token"])  # initialize Spotify client
-    playlists = get_user_playlists(sp)  # fetch user's playlists
+    if error:
+        return f"Error during authentication: {error}", 400
 
-    return render_template("dashboard.html", playlists=playlists)  # show playlist dropdown
+    if not code:
+        return "No authorization code provided by Spotify.", 400
 
+    try:
+        # exchange code for access token
+        token_info = sp_oauth.get_access_token(code)
+        session["token_info"] = token_info  # Store token info in session
+
+        # initialize Spotify client with the access token
+        sp = Spotify(auth=token_info["access_token"])
+
+        # fetch user's playlists
+        playlists = get_user_playlists(sp)
+
+        # render dashboard with playlists
+        return render_template("dashboard.html", playlists=playlists)
+
+    except Exception as e:
+        return f"An error occurred during Spotify authentication: {e}", 500
 
 @app.route("/create", methods=["POST"])
 def create():
