@@ -18,15 +18,18 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 from dotenv import load_dotenv
-
+# load .env variables only in local development
+if os.getenv("RENDER") is None:  # Check if the app is not running on Render
+    load_dotenv()
 # load environment variables from the .env file
 # load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
-load_dotenv()
+# load_dotenv()
 
 # Spotify API credentials from environment variables
 CLIENT_ID = os.getenv("CLIENT_ID") # insert your client_id here if developer
 CLIENT_SECRET = os.getenv("CLIENT_SECRET") # insert your client_secret here if developer
-REDIRECT_URI = os.getenv("REDIRECT_URI") # insert your own redirecturi from Spotify
+REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") # insert your own redirect uri here
+# REDIRECT_URI = os.getenv("REDIRECT_URI") # insert your own redirect uri from Spotify
 SCOPE = os.getenv("SCOPE") # insert the scope
 
 # initialize database
