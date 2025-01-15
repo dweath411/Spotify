@@ -9,8 +9,8 @@
 **No Duplicates:** Prevent duplicate songs in curated playlists with built-in validation.
 
 **Top Tracks Analysis:** Visualize your most played tracks for the past week, past 6 months, or past year.
-    * Generate interactive bar charts showing the cumulative playtime of your top songs.
-    * Estimate listening time using custom logic and default play counts for each time range.
+  * Generate interactive bar charts showing the cumulative playtime of your top songs.
+  * Estimate listening time using custom logic and default play counts for each time range.
 
 **Playlist Export:** Export playlist data (e.g., song details, durations, popularity) to a CSV file.
 
@@ -53,7 +53,7 @@ cd spotify-origin-radar`
 ```bash
 CLIENT_ID=your_spotify_client_id
 CLIENT_SECRET=your_spotify_client_secret
-SPOTIPY_REDIRECT_URI=http://localhost:5000/callback # (or your Render deployment callback link)
+SPOTIPY_REDIRECT_URI=http://localhost:5000/callback # or your Render deployment callback link)
 FLASK_APP=app.py
 SCOPE="user-top-read playlist-modify-public playlist-modify-private playlist-read-private"
 ```
