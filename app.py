@@ -31,14 +31,14 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET") # insert your client_secret here if d
 # REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") # insert your own redirect uri here
 # REDIRECT_URI = os.getenv("REDIRECT_URI") # insert your own redirect uri from Spotify
 SCOPE = os.getenv("SCOPE") # insert the scope
-REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") or os.getenv("REDIRECT_URI")
-if not REDIRECT_URI:
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") or os.getenv("REDIRECT_URI")
+if not SPOTIFY_REDIRECT_URI:
     raise ValueError("REDIRECT_URI is not set in environment variables.")
 # initialize database
 initialize_db()
 
 # initialize Spotipy OAuth
-sp_oauth = SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI, scope=SCOPE)
+sp_oauth = SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=SPOTIFY_REDIRECT_URI, scope=SCOPE)
 
 
 @app.route("/")
@@ -257,7 +257,7 @@ def refresh_token():
 print("Environment Variables Loaded:")
 print(f"CLIENT_ID: {CLIENT_ID}")
 print(f"CLIENT_SECRET: {'****' if CLIENT_SECRET else 'Not Set'}")
-print(f"SPOTIPY_REDIRECT_URI: {REDIRECT_URI}")
+print(f"SPOTIPY_REDIRECT_URI: {SPOTIFY_REDIRECT_URI}")
 print(f"SCOPE: {SCOPE}")
 
 
