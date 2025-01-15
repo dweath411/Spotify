@@ -28,10 +28,10 @@ if os.getenv("RENDER") is None:  # check if the app is not running on Render
 # Spotify API credentials from environment variables
 CLIENT_ID = os.getenv("CLIENT_ID") # insert your client_id here if developer
 CLIENT_SECRET = os.getenv("CLIENT_SECRET") # insert your client_secret here if developer
-REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") # insert your own redirect uri here
+# REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") # insert your own redirect uri here
 # REDIRECT_URI = os.getenv("REDIRECT_URI") # insert your own redirect uri from Spotify
 SCOPE = os.getenv("SCOPE") # insert the scope
-
+REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") or os.getenv("REDIRECT_URI") # checks for local or render deployment
 # initialize database
 initialize_db()
 
