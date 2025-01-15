@@ -31,7 +31,9 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET") # insert your client_secret here if d
 # REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") # insert your own redirect uri here
 # REDIRECT_URI = os.getenv("REDIRECT_URI") # insert your own redirect uri from Spotify
 SCOPE = os.getenv("SCOPE") # insert the scope
-REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") or os.getenv("REDIRECT_URI") # checks for local or render deployment
+REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") or os.getenv("REDIRECT_URI")
+if not REDIRECT_URI:
+    raise ValueError("REDIRECT_URI is not set in environment variables.")
 # initialize database
 initialize_db()
 
@@ -250,6 +252,13 @@ def refresh_token():
     token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
     session["token_info"] = token_info
     return token_info
+
+# debug
+print("Environment Variables Loaded:")
+print(f"CLIENT_ID: {CLIENT_ID}")
+print(f"CLIENT_SECRET: {'****' if CLIENT_SECRET else 'Not Set'}")
+print(f"SPOTIPY_REDIRECT_URI: {REDIRECT_URI}")
+print(f"SCOPE: {SCOPE}")
 
 
 
