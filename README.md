@@ -3,13 +3,19 @@
 
 ## Features
 **Spotify Authentication:** Log in securely via Spotify OAuth 2.0. Your data is secure through Spotify.
+
 **Custom Playlist Creation:** Generate a curated "Origin Radar" playlist weekly, pulling from your selected source playlist.
+
 **No Duplicates:** Prevent duplicate songs in curated playlists with built-in validation.
+
 **Top Tracks Analysis:** Visualize your most played tracks for the past week, past 6 months, or past year.
     * Generate interactive bar charts showing the cumulative playtime of your top songs.
     * Estimate listening time using custom logic and default play counts for each time range.
+
 **Playlist Export:** Export playlist data (e.g., song details, durations, popularity) to a CSV file.
+
 **Duplicate Removal:** Detect and remove duplicate tracks from any playlist.
+
 **Responsive UI:** User-friendly interface styled to align with Spotify's theme.
 
 ## Spotipy Documentation
@@ -34,13 +40,16 @@ Before setting up Spotify Origin Radar, ensure you have the following:
 
 ## Setup Instructions
 1. **Clone the Repository:**
+
 `git clone https://github.com/yourusername/spotify-origin-radar.git
 cd spotify-origin-radar`
 
 2. **Install Dependencies:** Use the provided `requirements.txt` to install all dependencies:
+
 `pip install -r requirements.txt`
 
 3. **Set Up Environment Variables:** Spotify API credentials and app configurations must be set up. For local deployment, create a `.env` file in the project root:
+
 `CLIENT_ID=your_spotify_client_id
 CLIENT_SECRET=your_spotify_client_secret
 SPOTIPY_REDIRECT_URI=http://localhost:5000/callback # (or your Render deployment callback link)
@@ -48,21 +57,29 @@ FLASK_APP=app.py
 SCOPE="user-top-read playlist-modify-public playlist-modify-private playlist-read-private"`
 
 4. **Run the Application:** Launch the app locally:
+
 `python app.py`
+
 The app will be accessible at `http://localhost:5000` (or whatever `redirect_uri` you set).
 
 5. **Access the Deployed App (Optional):** If deploying to Render, update your Spotify Developer Dashboard's redirect URI to match your Render URL (e.g., `https://yourappname.onrender.com/callback`).
 
+
+---
+
 ## Environment Variables
-Variable Name | Description
-CLIENT_ID	Spotify application client ID.
-CLIENT_SECRET	Spotify application client secret.
-SPOTIPY_REDIRECT_URI	Redirect URI for Spotify OAuth.
-FLASK_APP	Entry point for Flask application (default: app.py).
-SCOPE	Permissions required for Spotify API (see code).
+
+| Variable Name         | Description                                             |
+|-----------------------|---------------------------------------------------------|
+| `CLIENT_ID`           | Spotify application client ID.                          |
+| `CLIENT_SECRET`       | Spotify application client secret.                      |
+| `SPOTIPY_REDIRECT_URI`| Redirect URI for Spotify OAuth.                         |
+| `FLASK_APP`           | Entry point for Flask application (default: `app.py`).  |
+| `SCOPE`               | Permissions required for Spotify API (see code).        |
 
 ## Project Structure
-spotify-origin-radar/
+
+`spotify-origin-radar/
 │
 ├── app.py             # main application file
 ├── playlist.py        # functions for playlist handling
@@ -73,7 +90,7 @@ spotify-origin-radar/
 ├── requirements.txt   # project dependencies
 ├── .env.example       # example environment variable file
 └── README.md          # project documentation
-
+`
 ## Features in Detail
 
 ### 1. Spotify Authentication
@@ -87,7 +104,9 @@ Users authenticate via Spotify OAuth 2.0. The application ensures secure login a
 Analyze your most played tracks over three time ranges:
 
 **Past Month:** Short-term listening trends.
+
 **Past 6 Months:** Medium-term trends.
+
 **Past Year:** Long-term trends.
 
 The analysis includes:
