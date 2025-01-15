@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Origin Radar</title>
+    <title>Spotify Radar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <header>
             <img src="{{ url_for('static', filename='spotify-logo.png') }}" alt="Spotify Logo" class="logo">
-            <h1>Spotify Origin Radar</h1>
+            <h1>Spotify Radar</h1>
         </header>
         <main>
             <p>Discover and relive your favorite tracks weekly with custom playlists.</p>
             <a href="{{ auth_url }}" class="spotify-button">Log in with Spotify</a>
         </main>
         <footer>
-            <p>&copy; 2025 Spotify Origin Radar</p>
+            <p>&copy; 2025 Spotify Radar</p>
         </footer>
     </div>
 </body>

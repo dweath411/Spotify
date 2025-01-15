@@ -34,12 +34,12 @@ SCOPE = os.getenv("SCOPE") # insert the scope
 SPOTIFY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI") or os.getenv("REDIRECT_URI")
 if not SPOTIFY_REDIRECT_URI:
     raise ValueError("REDIRECT_URI is not set in environment variables.")
+
 # initialize database
 initialize_db()
 
 # initialize Spotipy OAuth
 sp_oauth = SpotifyOAuth(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=SPOTIFY_REDIRECT_URI, scope=SCOPE)
-
 
 @app.route("/")
 def home():
@@ -47,18 +47,6 @@ def home():
     auth_url = sp_oauth.get_authorize_url()  # get the spotify login url
     return render_template("index.html", auth_url=auth_url)
 
-
-# @app.route("/callback")
-# def callback():
-#     """Handle Spotify login callback and fetch user's playlists."""
-#     code = request.args.get("code")  # get authorization code from callback
-#     token_info = sp_oauth.get_access_token(code)  # exchange code for access token
-#     session["token_info"] = token_info  # store token info in session
-
-#     sp = Spotify(auth=token_info["access_token"])  # initialize Spotify client
-#     playlists = get_user_playlists(sp)  # fetch user's playlists
-
-#     return render_template("dashboard.html", playlists=playlists)  # show playlist dropdown
 
 # @app.route("/callback")
 # def callback():
@@ -91,6 +79,7 @@ def home():
 
 @app.route("/callback")
 def callback():
+    print("Callback route accessed.") # logging
     code = request.args.get("code")
     error = request.args.get("error")
 
@@ -112,6 +101,7 @@ def callback():
         return render_template("dashboard.html", playlists=playlists)
 
     except Exception as e:
+        print(f"Error in callback: {e}") # logging
         return f"An error occurred during Spotify authentication: {e}", 500
 
 
@@ -253,6 +243,10 @@ def refresh_token():
     session["token_info"] = token_info
     return token_info
 
+@app.route("/test") # is it working?
+def test():
+    return "Test route is working!"
+
 # debug
 print("Environment Variables Loaded:")
 print(f"CLIENT_ID: {CLIENT_ID}")
@@ -263,4 +257,6 @@ print(f"SCOPE: {SCOPE}")
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5001)))
+    # debug mode only for local development
+    is_local = os.getenv("RENDER") is None  # check if running locally
+    app.run(debug=is_local, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
