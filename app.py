@@ -58,11 +58,39 @@ def home():
 
 #     return render_template("dashboard.html", playlists=playlists)  # show playlist dropdown
 
+# @app.route("/callback")
+# def callback():
+#     """Handle Spotify login callback and fetch user's playlists."""
+#     code = request.args.get("code")  # get authorization code from callback
+#     error = request.args.get("error")  # check for error parameter
+
+#     if error:
+#         return f"Error during authentication: {error}", 400
+
+#     if not code:
+#         return "No authorization code provided by Spotify.", 400
+
+#     try:
+#         # exchange code for access token
+#         token_info = sp_oauth.get_access_token(code)
+#         session["token_info"] = token_info  # Store token info in session
+
+#         # initialize Spotify client with the access token
+#         sp = Spotify(auth=token_info["access_token"])
+
+#         # fetch user's playlists
+#         playlists = get_user_playlists(sp)
+
+#         # render dashboard with playlists
+#         return render_template("dashboard.html", playlists=playlists)
+
+#     except Exception as e:
+#         return f"An error occurred during Spotify authentication: {e}", 500
+
 @app.route("/callback")
 def callback():
-    """Handle Spotify login callback and fetch user's playlists."""
-    code = request.args.get("code")  # get authorization code from callback
-    error = request.args.get("error")  # check for error parameter
+    code = request.args.get("code")
+    error = request.args.get("error")
 
     if error:
         return f"Error during authentication: {error}", 400
@@ -71,21 +99,19 @@ def callback():
         return "No authorization code provided by Spotify.", 400
 
     try:
-        # exchange code for access token
         token_info = sp_oauth.get_access_token(code)
-        session["token_info"] = token_info  # Store token info in session
+        session["token_info"] = token_info
 
-        # initialize Spotify client with the access token
+        # Ensure token is valid or refreshed
+        token_info = refresh_token()
         sp = Spotify(auth=token_info["access_token"])
-
-        # fetch user's playlists
         playlists = get_user_playlists(sp)
 
-        # render dashboard with playlists
         return render_template("dashboard.html", playlists=playlists)
 
     except Exception as e:
         return f"An error occurred during Spotify authentication: {e}", 500
+
 
 @app.route("/create", methods=["POST"])
 def create():
@@ -214,6 +240,17 @@ def remove_duplicates_route():
     remove_duplicates(sp, playlist_id)
 
     return "Duplicate tracks removed from the playlist!"
+
+def refresh_token():
+    """Refresh Spotify token if expired."""
+    token_info = session.get("token_info", {})
+    if not sp_oauth.is_token_expired(token_info):
+        return token_info
+
+    token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
+    session["token_info"] = token_info
+    return token_info
+
 
 
 if __name__ == "__main__":
