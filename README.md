@@ -50,11 +50,13 @@ cd spotify-origin-radar`
 
 3. **Set Up Environment Variables:** Spotify API credentials and app configurations must be set up. For local deployment, create a `.env` file in the project root:
 
-`CLIENT_ID=your_spotify_client_id
+```bash
+CLIENT_ID=your_spotify_client_id
 CLIENT_SECRET=your_spotify_client_secret
 SPOTIPY_REDIRECT_URI=http://localhost:5000/callback # (or your Render deployment callback link)
 FLASK_APP=app.py
-SCOPE="user-top-read playlist-modify-public playlist-modify-private playlist-read-private"`
+SCOPE="user-top-read playlist-modify-public playlist-modify-private playlist-read-private"
+```
 
 4. **Run the Application:** Launch the app locally:
 
@@ -79,7 +81,8 @@ The app will be accessible at `http://localhost:5000` (or whatever `redirect_uri
 
 ## Project Structure
 
-`spotify-origin-radar/
+```bash
+spotify-origin-radar/
 │
 ├── app.py             # main application file
 ├── playlist.py        # functions for playlist handling
@@ -90,7 +93,7 @@ The app will be accessible at `http://localhost:5000` (or whatever `redirect_uri
 ├── requirements.txt   # project dependencies
 ├── .env.example       # example environment variable file
 └── README.md          # project documentation
-`
+```
 ## Features in Detail
 
 ### 1. Spotify Authentication
