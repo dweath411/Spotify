@@ -58,6 +58,20 @@
                     <button type="submit" class="spotify-button">Remove Duplicates</button>
                 </form>
             </section>
+
+            <!-- generate recommendations -->
+            <section class="recommendations">
+                <h2>Generate Recommendations</h2>
+                <form action="{{ url_for('generate_recommendations') }}" method="POST">
+                    <label for="playlist_id">Select a Playlist for Recommendations:</label>
+                    <select id="playlist_id" name="playlist_id" required>
+                        {% for playlist in playlists %}
+                            <option value="{{ playlist['id'] }}">{{ playlist['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="spotify-button">Generate Playlist of Recommendations</button>
+                </form>
+            </section>
         </main>
         <footer>
             <p>&copy; 2025 Spotify Radar</p>
