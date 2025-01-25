@@ -19,7 +19,7 @@
 **Responsive UI:** User-friendly interface styled to align with Spotify's theme.
 
 ## Spotipy Documentation
-For more information about the Spotify API wrapper used in this application, visit the [https://spotipy.readthedocs.io/en/2.24.0](Spotipy documentation).
+For more information about the Spotify API wrapper used in this application, visit the [Spotify Documenation](https://spotipy.readthedocs.io/en/2.24.0)
 
 ### Table of Contents
 Prerequisites
