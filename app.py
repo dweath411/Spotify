@@ -206,6 +206,56 @@ def remove_duplicates_route():
 
 
 
+# @app.route("/generate_recommendations", methods=["POST"])
+# def generate_recommendations():
+#     """Generate a playlist of recommendations based on the selected playlist."""
+#     token_info = session.get("token_info")
+#     if not token_info:
+#         return redirect("/")  # redirect to login if no session token
+
+#     # refresh token if expired
+#     token_info = refresh_token()
+#     sp = Spotify(auth=token_info["access_token"])  # initialize Spotify client
+
+#     playlist_id = request.form.get("playlist_id")  # get selected playlist ID from form
+
+#     if not playlist_id:
+#         return "No playlist selected. Please select a playlist to generate recommendations.", 400
+
+#     # fetch tracks from the selected playlist
+#     tracks = get_tracks_from_playlist(sp, playlist_id)
+
+#     if not tracks:
+#         return "The selected playlist has no tracks to generate recommendations.", 400
+
+#     # validate that the playlist has at least 50 tracks
+#     if len(tracks) < 50:
+#         return "The selected playlist must have at least 50 tracks to generate recommendations.", 400
+
+#     # get seed track IDs (Spotify limits to 5 seed tracks)
+#     # seed_tracks = [track["id"] for track in tracks[:5]]
+#     # extract seed track IDs (strip URI to get the track ID)
+#     seed_tracks = [uri.split(":")[-1] for uri in tracks[:5]]
+
+#     # generate 50 recommendations
+#     recommendations = sp.recommendations(seed_tracks=seed_tracks, limit=50)["tracks"]
+
+#     # extract URIs for the recommended songs
+#     recommended_uris = [track["uri"] for track in recommendations]
+
+#     # fetch the selected playlist's name
+#     playlist_name = sp.playlist(playlist_id)["name"]
+
+#     # create a new playlist for the recommendations
+#     new_playlist_name = f"{playlist_name} Recommendations"
+#     user_id = sp.me()["id"]
+#     new_playlist = sp.user_playlist_create(user_id, new_playlist_name, public=False)
+
+#     # add the recommended songs to the new playlist
+#     sp.playlist_add_items(new_playlist["id"], recommended_uris)
+
+#     return f"Playlist '{new_playlist_name}' created successfully with 50 recommendations!"
+
 @app.route("/generate_recommendations", methods=["POST"])
 def generate_recommendations():
     """Generate a playlist of recommendations based on the selected playlist."""
@@ -225,37 +275,37 @@ def generate_recommendations():
     # fetch tracks from the selected playlist
     tracks = get_tracks_from_playlist(sp, playlist_id)
 
+    # ensure the playlist has valid tracks
     if not tracks:
-        return "The selected playlist has no tracks to generate recommendations.", 400
+        return "The selected playlist has no valid tracks to generate recommendations.", 400
 
-    # validate that the playlist has at least 50 tracks
-    if len(tracks) < 50:
-        return "The selected playlist must have at least 50 tracks to generate recommendations.", 400
+    # get seed track IDs (Spotify allows up to 5 seed tracks for recommendations)
+    seed_tracks = [uri.split(":")[-1] for uri in tracks[:5]]  # extract track IDs
 
-    # get seed track IDs (Spotify limits to 5 seed tracks)
-    # seed_tracks = [track["id"] for track in tracks[:5]]
-    # extract seed track IDs (strip URI to get the track ID)
-    seed_tracks = [uri.split(":")[-1] for uri in tracks[:5]]
+    if not seed_tracks:
+        return "No valid seed tracks found to generate recommendations.", 400
 
-    # generate 50 recommendations
-    recommendations = sp.recommendations(seed_tracks=seed_tracks, limit=50)["tracks"]
+    try:
+        # generate 50 recommendations
+        recommendations = sp.recommendations(seed_tracks=seed_tracks, limit=50)["tracks"]
+        recommended_uris = [track["uri"] for track in recommendations]  # extract track URIs
 
-    # extract URIs for the recommended songs
-    recommended_uris = [track["uri"] for track in recommendations]
+        # fetch the selected playlist's name
+        playlist_name = sp.playlist(playlist_id)["name"]
 
-    # fetch the selected playlist's name
-    playlist_name = sp.playlist(playlist_id)["name"]
+        # create a new playlist for the recommendations
+        new_playlist_name = f"{playlist_name} Recommendations"
+        user_id = sp.me()["id"]
+        new_playlist = sp.user_playlist_create(user_id, new_playlist_name, public=False)
 
-    # create a new playlist for the recommendations
-    new_playlist_name = f"{playlist_name} Recommendations"
-    user_id = sp.me()["id"]
-    new_playlist = sp.user_playlist_create(user_id, new_playlist_name, public=False)
+        # add the recommended songs to the new playlist
+        sp.playlist_add_items(new_playlist["id"], recommended_uris)
 
-    # add the recommended songs to the new playlist
-    sp.playlist_add_items(new_playlist["id"], recommended_uris)
+        return f"Playlist '{new_playlist_name}' created successfully with 50 recommendations!"
 
-    return f"Playlist '{new_playlist_name}' created successfully with 50 recommendations!"
-
+    except Exception as e:
+        print(f"Error generating recommendations: {e}")  # log the error
+        return f"An error occurred while generating recommendations: {e}", 500
 
 def refresh_token():
     """Refresh Spotify token if expired."""

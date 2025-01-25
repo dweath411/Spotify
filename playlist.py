@@ -169,41 +169,40 @@ def export_playlist_to_csv(sp, playlist_id, playlist_name, file_name="playlist_e
 
 def get_tracks_from_playlist(sp, playlist_id):
     """
-    fetch tracks from a user-selected playlist.
+    fetch valid tracks from a user-selected playlist.
 
     args:
         sp (spotipy.Spotify): the spotify client.
         playlist_id (str): id of the playlist to fetch tracks from.
 
     returns:
-        list: a list of track uris from the playlist.
+        list: a list of valid track uris from the playlist.
     """
     try:
         all_tracks = []  # list to store all track uris
         results = sp.playlist_items(playlist_id)  # fetch the first batch of tracks
-        print(f"Initial results: {results}")  # debug: log initial response
 
-        # ensure 'items' exists in the response
-        if "items" not in results or not results["items"]:
-            print("No tracks found in the playlist response.")  # debug log
-            return []  # no tracks found
+        # process tracks from the first page
+        if "items" in results:
+            all_tracks.extend(results["items"])
 
-        # process the first batch of tracks
-        all_tracks.extend(results["items"])  # add current batch to all_tracks
+        # handle pagination if more tracks exist
+        while results.get("next"):
+            results = sp.next(results)
+            all_tracks.extend(results["items"])
 
-        # handle pagination if there are more tracks
-        while results.get("next"):  # check for a next page of results
-            results = sp.next(results)  # fetch next batch
-            all_tracks.extend(results["items"])  # add next batch to all_tracks
-
-        # extract uris for valid tracks
-        track_uris = [item["track"]["uri"] for item in all_tracks if item["track"]]
-        print(f"Extracted track URIs: {track_uris}")  # debug: log track URIs
-        return track_uris  # return the list of track uris
+        # filter valid tracks and extract uris
+        track_uris = [
+            item["track"]["uri"]
+            for item in all_tracks
+            if item.get("track") and item["track"].get("uri")
+        ]
+        return track_uris
 
     except Exception as e:
-        print(f"Error fetching tracks from playlist: {e}")  # log the error
+        print(f"Error fetching tracks from playlist: {e}")
         return []
+
 
 # def get_tracks_from_playlist(sp, playlist_id):
 #     """
