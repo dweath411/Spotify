@@ -178,53 +178,43 @@ def get_tracks_from_playlist(sp, playlist_id):
     returns:
         list: a list of track uris from the playlist.
     """
-    try:
-        all_tracks = []  # list to store all track items
-        results = sp.playlist_items(playlist_id)  # fetch the first batch of tracks
+    def get_tracks_from_playlist(sp, playlist_id):
+        try:
+            all_tracks = []  # list to store all track items
+            results = sp.playlist_items(playlist_id)  # fetch the first batch of tracks
+            print(f"Results type: {type(results)}")  # check type of results
+            print(f"Results content: {results}")  # log the full results
 
-        # iterate through results to handle pagination
-        while results:
-            all_tracks.extend(results["items"])  # append tracks from current batch
-            results = sp.next(results) if results["next"] else None  # fetch next page if available
+            while results:
+                all_tracks.extend(results["items"])  # append tracks from current batch
+                results = sp.next(results) if results["next"] else None  # fetch next page if available
 
-        # extract uris for tracks that are valid
-        track_uris = [item["track"]["uri"] for item in all_tracks if item["track"]]
-        return track_uris  # return the list of track uris
+            track_uris = [item["track"]["uri"] for item in all_tracks if item["track"]]
+            print(f"Track URIs: {track_uris}")  # log the extracted track URIs
+            return track_uris
+        except Exception as e:
+            print(f"Error fetching tracks from playlist: {e}")  # log the error
+            return []
+    # logging added to the above version
+    # try:
+    #     all_tracks = []  # list to store all track items
+    #     results = sp.playlist_items(playlist_id)  # fetch the first batch of tracks
 
-    except Exception as e:
-        print(f"Error fetching tracks from playlist: {e}")  # log the error
-        return []
+    #     # iterate through results to handle pagination
+    #     while results:
+    #         all_tracks.extend(results["items"])  # append tracks from current batch
+    #         results = sp.next(results) if results["next"] else None  # fetch next page if available
+
+    #     # extract uris for tracks that are valid
+    #     track_uris = [item["track"]["uri"] for item in all_tracks if item["track"]]
+    #     return track_uris  # return the list of track uris
+
+    # except Exception as e:
+    #     print(f"Error fetching tracks from playlist: {e}")  # log the error
+    #     return []
 
 
-# def get_tracks_from_playlist(sp, playlist_id, limit=1000):
-#     """
-#     fetch tracks from a user-selected playlist.
 
-#     args:
-#         sp (spotipy.Spotify): the spotify client.
-#         playlist_id (str): id of the playlist to fetch tracks from.
-#         limit (int): number of tracks to fetch per request.
-
-#     returns:
-#         list: a list of track uris from the playlist.
-#     """
-#     try:
-#         all_tracks = []  # store track uris
-#         results = sp.playlist_items(playlist_id, limit=limit)  # fetch first batch of tracks
-#         all_tracks.extend(results["items"])  # add tracks to the list
-
-#         # handle pagination if more tracks exist
-#         while results["next"]:
-#             results = sp.next(results)  # fetch next page
-#             all_tracks.extend(results["items"])
-
-#         # extract uris from tracks
-#         track_uris = [item["track"]["uri"] for item in all_tracks if item["track"]]
-#         return track_uris
-
-#     except Exception as e:
-#         print(f"Error fetching tracks from playlist: {e}")  # log the error
-#         return []
 
 # function callable by the following command ->
 # export_playlist_to_csv(sp, "4oeP3PbakXBlj8tPh3nEPx", "My Playlist")
