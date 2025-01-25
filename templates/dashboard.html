@@ -30,7 +30,8 @@
                     <button type="submit" class="submit-button">Create Playlist</button>
                 </form>
             </section>
-            <!-- song analysis-->
+            
+            <!-- song analysis -->
             <section class="song-analysis">
                 <h2>Analyze Your Listening Habits</h2>
                 <div class="button-container">
@@ -58,11 +59,11 @@
                     <button type="submit" class="spotify-button">Remove Duplicates</button>
                 </form>
             </section>
-
+            
             <!-- generate recommendations -->
             <section class="recommendations">
                 <h2>Generate Recommendations</h2>
-                <form action="{{ url_for('generate_recommendations') }}" method="POST">
+                <form action="{{ url_for('generate_recommendations_route') }}" method="POST">
                     <label for="playlist_id">Select a Playlist for Recommendations:</label>
                     <select id="playlist_id" name="playlist_id" required>
                         {% for playlist in playlists %}

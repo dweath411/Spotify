@@ -1,6 +1,7 @@
 import random
 from datetime import datetime 
 from database import add_selected_songs 
+import random
 import csv  # used for writing data to CSV files
 from spotipy import Spotify  # spotify client library
 import os 
@@ -167,88 +168,92 @@ def export_playlist_to_csv(sp, playlist_id, playlist_name, file_name="playlist_e
         print(f"Error writing to CSV: {e}")  # log errors while writing to the file
         return "Error saving CSV file."
 
-def get_tracks_from_playlist(sp, playlist_id):
-    """
-    fetch valid tracks from a user-selected playlist.
-
-    args:
-        sp (spotipy.Spotify): the spotify client.
-        playlist_id (str): id of the playlist to fetch tracks from.
-
-    returns:
-        list: a list of valid track uris from the playlist.
-    """
-    try:
-        all_tracks = []  # list to store all track uris
-        results = sp.playlist_items(playlist_id)  # fetch the first batch of tracks
-
-        # process tracks from the first page
-        if "items" in results:
-            all_tracks.extend(results["items"])
-
-        # handle pagination if more tracks exist
-        while results.get("next"):
-            results = sp.next(results)
-            all_tracks.extend(results["items"])
-
-        # filter valid tracks and extract uris
-        track_uris = [
-            item["track"]["uri"]
-            for item in all_tracks
-            if item.get("track") and item["track"].get("uri")
-        ]
-        return track_uris
-
-    except Exception as e:
-        print(f"Error fetching tracks from playlist: {e}")
-        return []
-
-
 # def get_tracks_from_playlist(sp, playlist_id):
 #     """
-#     fetch tracks from a user-selected playlist.
+#     fetch valid tracks from a user-selected playlist.
 
 #     args:
 #         sp (spotipy.Spotify): the spotify client.
 #         playlist_id (str): id of the playlist to fetch tracks from.
 
 #     returns:
-#         list: a list of track uris from the playlist.
+#         list: a list of valid track uris from the playlist.
 #     """
-#     def get_tracks_from_playlist(sp, playlist_id):
-#         try:
-#             all_tracks = []  # list to store all track items
-#             results = sp.playlist_items(playlist_id)  # fetch the first batch of tracks
-#             print(f"Results type: {type(results)}")  # check type of results
-#             print(f"Results content: {results}")  # log the full results
+#     try:
+#         all_tracks = []  # list to store all track uris
+#         results = sp.playlist_items(playlist_id)  # fetch the first batch of tracks
 
-#             while results:
-#                 all_tracks.extend(results["items"])  # append tracks from current batch
-#                 results = sp.next(results) if results["next"] else None  # fetch next page if available
+#         # process tracks from the first page
+#         if "items" in results:
+#             all_tracks.extend(results["items"])
 
-#             track_uris = [item["track"]["uri"] for item in all_tracks if item["track"]]
-#             print(f"Track URIs: {track_uris}")  # log the extracted track URIs
-#             return track_uris
-#         except Exception as e:
-#             print(f"Error fetching tracks from playlist: {e}")  # log the error
-#             return []
-    # logging added to the above version------------------------------
-    # try:
-    #     all_tracks = []  # list to store all track items
-    #     results = sp.playlist_items(playlist_id)  # fetch the first batch of tracks
+#         # handle pagination if more tracks exist
+#         while results.get("next"):
+#             results = sp.next(results)
+#             all_tracks.extend(results["items"])
 
-    #     # iterate through results to handle pagination
-    #     while results:
-    #         all_tracks.extend(results["items"])  # append tracks from current batch
-    #         results = sp.next(results) if results["next"] else None  # fetch next page if available
+#         # filter valid tracks and extract uris
+#         track_uris = [
+#             item["track"]["uri"]
+#             for item in all_tracks
+#             if item.get("track") and item["track"].get("uri")
+#         ]
+#         return track_uris
 
-    #     # extract uris for tracks that are valid
-    #     track_uris = [item["track"]["uri"] for item in all_tracks if item["track"]]
-    #     return track_uris  # return the list of track uris
+#     except Exception as e:
+#         print(f"Error fetching tracks from playlist: {e}")
+#         return []
 
-    # except Exception as e:
-    #     print(f"Error fetching tracks from playlist: {e}")  # log the error
-    #     return []
+
+def generate_recommendations(sp, user_id, playlist_name="My Recommendeded Playlist"):
+    """
+    generate a playlist of recommendations based on user data (top tracks, liked tracks, and history).
+
+    args:
+        sp (spotipy.Spotify): the spotify client.
+        user_id (str): the spotify user id.
+        playlist_name (str): name of the new playlist for recommendations.
+
+    returns:
+        dict: details of the created playlist.
+    """
+    try:
+        # fetch user data (top tracks, liked tracks, and listening history)
+        top_tracks = sp.current_user_top_tracks(limit=10, time_range='long_term')
+        liked_tracks = sp.current_user_saved_tracks(limit=10)
+        history = sp.current_user_recently_played(limit=10)
+
+        # extract track ids from the data
+        top_track_ids = [track['id'] for track in top_tracks['items']]
+        liked_track_ids = [track['track']['id'] for track in liked_tracks['items']]
+        history_track_ids = [track['track']['id'] for track in history['items']]
+
+        # combine all track ids and shuffle them
+        seed_track_ids = top_track_ids + liked_track_ids + history_track_ids
+        random.shuffle(seed_track_ids)
+
+        # ensure there are enough seed tracks
+        if len(seed_track_ids) < 5:
+            return {"error": "Not enough data to generate recommendations. Please listen to more songs or add liked tracks."}
+
+        # generate recommendations using up to 5 seed tracks
+        recommendations = sp.recommendations(
+            seed_tracks=seed_track_ids[:5], limit=50, country='US'
+        )
+
+        # extract track uris from recommendations
+        recommended_uris = [track['uri'] for track in recommendations['tracks']]
+
+        # create a new playlist for recommendations
+        new_playlist = sp.user_playlist_create(user_id, playlist_name, public=False)
+        sp.playlist_add_items(new_playlist['id'], recommended_uris)
+
+        return {"playlist_name": new_playlist['name'], "playlist_id": new_playlist['id']}
+
+    except Exception as e:
+        print(f"Error generating recommendations: {e}")
+        return {"error": str(e)}
+
 
 
 
