@@ -281,6 +281,7 @@ def generate_recommendations():
 
     # get seed track IDs (Spotify allows up to 5 seed tracks for recommendations)
     seed_tracks = [uri.split(":")[-1] for uri in tracks[:5]]  # extract track IDs
+    print(f"Seed tracks for recommendations: {seed_tracks}")
 
     if not seed_tracks:
         return "No valid seed tracks found to generate recommendations.", 400
@@ -289,6 +290,9 @@ def generate_recommendations():
         # generate 50 recommendations
         recommendations = sp.recommendations(seed_tracks=seed_tracks, limit=50)["tracks"]
         recommended_uris = [track["uri"] for track in recommendations]  # extract track URIs
+
+        if not recommendations: # error handling
+            return "No recommendations could be generated. Try another playlist.", 400
 
         # fetch the selected playlist's name
         playlist_name = sp.playlist(playlist_id)["name"]
@@ -316,6 +320,14 @@ def refresh_token():
     token_info = sp_oauth.refresh_access_token(token_info["refresh_token"])
     session["token_info"] = token_info
     return token_info
+
+# debugging route
+@app.route("/debug_tracks/<playlist_id>")
+def debug_tracks(playlist_id):
+    token_info = session.get("token_info")
+    sp = Spotify(auth=token_info["access_token"])
+    tracks = get_tracks_from_playlist(sp, playlist_id)
+    return {"tracks": tracks}
 
 @app.route("/test") # is it working?
 def test():
