@@ -58,6 +58,15 @@ FLASK_APP=app.py
 SCOPE="user-top-read playlist-modify-public playlist-modify-private playlist-read-private"
 ```
 
+### Explanation of scopes
+
+`user-top-read`: Allows the app to access the user's top artists and tracks.
+`user-read-email`: Grants access to the user's email address.
+`playlist-modify-public`: Allows modifying the user's public playlists.
+`playlist-modify-private`: Allows modifying the user's private playlists.
+`playlist-read-private`: Grants access to read the user's private playlists.
+`user-library-read`: Allows reading the user's saved tracks (required for /v1/me/tracks endpoint).
+
 4. **Run the Application:** Launch the app locally:
 
 `python app.py`
