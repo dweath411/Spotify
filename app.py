@@ -204,32 +204,73 @@ def remove_duplicates_route():
 
     return "Duplicate tracks removed from the playlist!"
 
-
 @app.route("/generate_recommendations", methods=["POST"])
-def generate_recommendations_route():
-    """
-    app route to generate a playlist of recommendations based on user data.
-    """
-    token_info = session.get("token_info")
-    if not token_info:
-        return redirect("/")  # redirect to home if no session token
+def generate_recommendations():
+    """Generate a playlist of recommendations based on the selected playlist."""
+    try:
+        # get spotify client and session token
+        token_info = refresh_token()
+        sp = Spotify(auth=token_info["access_token"])
 
-    # refresh token if needed
-    token_info = refresh_token()
-    sp = Spotify(auth=token_info["access_token"])  # initialize spotify client
+        # fetch playlist id from the form
+        playlist_id = request.form.get("playlist_id")
+        if not playlist_id:
+            return "No playlist selected. Please select a playlist to generate recommendations.", 400
 
-    # fetch user id
-    user_id = sp.me()["id"]
+        # fetch tracks from selected playlist
+        seed_tracks = generate_recommendations(sp, playlist_id)
+        if len(seed_tracks) < 5:
+            return "Not enough seed tracks available for recommendations.", 400
 
-    # call the generate_recommendations function
-    result = generate_recommendations(sp, user_id)
+        # get recommendations from spotify
+        recommendations = sp.recommendations(seed_tracks=seed_tracks[:5], limit=50)
+        recommended_uris = [track["uri"] for track in recommendations.get("tracks", [])]
 
-    # handle errors if any
-    if "error" in result:
-        return f"An error occurred while generating recommendations: {result['error']}", 400
+        # verify recommendations
+        if not recommended_uris:
+            return "Spotify could not generate recommendations. Try a different playlist.", 400
 
-    # return success message
-    return f"Playlist '{result['playlist_name']}' created successfully with recommendations!"
+        # fetch playlist name and create new playlist
+        playlist_name = sp.playlist(playlist_id)["name"]
+        new_playlist_name = f"{playlist_name} Recommendations"
+        user_id = sp.me()["id"]
+        new_playlist = sp.user_playlist_create(user_id, new_playlist_name, public=False)
+
+        # add recommendations to the new playlist
+        sp.playlist_add_items(new_playlist["id"], recommended_uris)
+
+        return f"Playlist '{new_playlist_name}' created successfully with 50 recommendations!"
+
+    except Exception as e:
+        print(f"Error generating recommendations: {e}")
+        return f"An error occurred while generating recommendations: {e}", 500
+
+
+# @app.route("/generate_recommendations", methods=["POST"])
+# def generate_recommendations_route():
+#     """
+#     app route to generate a playlist of recommendations based on user data.
+#     """
+#     token_info = session.get("token_info")
+#     if not token_info:
+#         return redirect("/")  # redirect to home if no session token
+
+#     # refresh token if needed
+#     token_info = refresh_token()
+#     sp = Spotify(auth=token_info["access_token"])  # initialize spotify client
+
+#     # fetch user id
+#     user_id = sp.me()["id"]
+
+#     # call the generate_recommendations function
+#     result = generate_recommendations(sp, user_id)
+
+#     # handle errors if any
+#     if "error" in result:
+#         return f"An error occurred while generating recommendations: {result['error']}", 400
+
+#     # return success message
+#     return f"Playlist '{result['playlist_name']}' created successfully with recommendations!"
 
 
 def refresh_token():
