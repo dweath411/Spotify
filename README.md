@@ -4,7 +4,7 @@
 ## Features
 **Spotify Authentication:** Log in securely via Spotify OAuth 2.0. Your data is secure through Spotify.
 
-**Custom Playlist Creation:** Generate a curated "Origin Radar" playlist weekly, pulling from your selected source playlist.
+**Custom Playlist Creation:** Generate a curated "Origin Radar" playlist weekly, pulling from your selected source playlist. Generate a playlist of recommendations as well.
 
 **No Duplicates:** Prevent duplicate songs in curated playlists with built-in validation.
 
@@ -53,18 +53,23 @@ cd spotify-origin-radar`
 ```bash
 CLIENT_ID=your_spotify_client_id
 CLIENT_SECRET=your_spotify_client_secret
-SPOTIPY_REDIRECT_URI=http://localhost:5000/callback # or your Render deployment callback link)
+SPOTIPY_REDIRECT_URI=http://localhost:5000/callback # or your Render deployment callback link
 FLASK_APP=app.py
-SCOPE="user-top-read playlist-modify-public playlist-modify-private playlist-read-private"
+SCOPE="user-top-read user-read-email playlist-modify-public playlist-modify-private playlist-read-private user-library-read"
 ```
 
-### Explanation of scopes
+**Explanation of required scopes**
 
 `user-top-read`: Allows the app to access the user's top artists and tracks.
+
 `user-read-email`: Grants access to the user's email address.
+
 `playlist-modify-public`: Allows modifying the user's public playlists.
+
 `playlist-modify-private`: Allows modifying the user's private playlists.
+
 `playlist-read-private`: Grants access to read the user's private playlists.
+
 `user-library-read`: Allows reading the user's saved tracks (required for /v1/me/tracks endpoint).
 
 4. **Run the Application:** Launch the app locally:
@@ -110,7 +115,9 @@ Users authenticate via Spotify OAuth 2.0. The application ensures secure login a
 
 ### 2. Custom Playlist Creation
 * Users can select any playlist as a source.
-* A weekly curated "Origin Radar" playlist is created with 20 random songs, avoiding duplicates from previous weeks.
+* A curated "Origin Radar" playlist is created with 20 random songs, avoiding duplicates from previous weeks.
+  * This curated playlist takes songs from which you already have in your playlist, it does generate recommendations.
+* Users can also select a playlist that has a minimum of 50 songs in it, using that playlist as the source you can generate recommendations. 
 
 ### 3. Top tracks analyis
 Analyze your most played tracks over three time ranges:
