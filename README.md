@@ -72,6 +72,8 @@ SCOPE="user-top-read user-read-email playlist-modify-public playlist-modify-priv
 
 `user-library-read`: Allows reading the user's saved tracks (required for /v1/me/tracks endpoint).
 
+`user-read-recently-played`: Required to retrieve the user’s recently played tracks using the `/v1/me/player/recently-played` endpoint.
+
 4. **Run the Application:** Launch the app locally:
 
 `python app.py`
