@@ -205,7 +205,7 @@ def remove_duplicates_route():
     return "Duplicate tracks removed from the playlist!"
 
 @app.route("/generate_recommendations", methods=["POST"])
-def generate_recommendations():
+def generate_recommendations_route():
     """Generate a playlist of recommendations based on the selected playlist."""
     try:
         # get spotify client and session token
